@@ -1,64 +1,170 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Carrossel de Imagens</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitrine de Propagandas | BarcoApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --accent-cyan: #22d3ee;
+            --text-white: #f8fafc;
+            --text-dim: #94a3b8;
+            --gradient: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
+        }
 
-<style>
-    body {
-        margin: 0;
-        background: #000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
 
-    .carousel {
-        width: 90vw;
-        max-width: 1080px;
-        aspect-ratio: 2/1;
-        overflow: hidden;
-        border-radius: 12px;
-        position: relative;
-        background: #000; /* fundo atrás da imagem */
-    }
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; font-size: 1.8rem; }
+        header p { color: var(--text-dim); font-size: 0.9rem; }
 
-    .carousel img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain; /* <-- IMAGEM CABE PERFEITAMENTE */
-        position: absolute;
-        opacity: 0;
-        transition: opacity 1s ease-in-out;
-    }
+        /* Estilo do Carrossel */
+        .carousel-container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
 
-    .carousel img.active {
-        opacity: 1;
-    }
-</style>
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-item {
+            min-width: 100%;
+            aspect-ratio: 2 / 1; /* Mantém a proporção 2:1 que recomendamos */
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 1rem;
+        }
+        .prev { left: 10px; }
+        .next { right: 10px; }
+
+        /* Lista de Imagens */
+        .image-list {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+        }
+
+        .image-item {
+            background: var(--card-dark);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .image-info { display: flex; align-items: center; gap: 15px; }
+        .thumb { width: 50px; height: 30px; border-radius: 4px; object-fit: cover; }
+        .image-name { font-size: 0.85rem; font-weight: 600; }
+        
+        .copy-btn {
+            background: var(--accent-cyan);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .copy-btn:active { transform: scale(0.95); }
+    </style>
 </head>
 <body>
 
-<div class="carousel">
-    <img src="1.png" class="active" />
-    <img src="2.png" />
-    <img src="3.png" />
-    <img src="4.png" />
-    <img src="5.png" />
-</div>
+    <header>
+        <h1>Vitrine BarcoApp</h1>
+        <p>Gerenciamento de Banners e Propagandas</p>
+    </header>
 
-<script>
-    const imgs = document.querySelectorAll('.carousel img');
-    let index = 0;
+    <div class="carousel-container">
+        <div class="carousel-track" id="track">
+            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/22d3ee/000000?text=Propaganda+1" alt="Banner 1"></div>
+            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/a855f7/ffffff?text=Propaganda+2" alt="Banner 2"></div>
+            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/22c55e/000000?text=Propaganda+3" alt="Banner 3"></div>
+            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/fbbf24/000000?text=Propaganda+4" alt="Banner 4"></div>
+            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/ef4444/ffffff?text=Propaganda+5" alt="Banner 5"></div>
+        </div>
+        <button class="nav-btn prev" onclick="move(-1)"><i class="fas fa-chevron-left"></i></button>
+        <button class="nav-btn next" onclick="move(1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
 
-    setInterval(() => {
-        imgs[index].classList.remove('active');
-        index = (index + 1) % imgs.length;
-        imgs[index].classList.add('active');
-    }, 3000);
-</script>
+    <div class="image-list" id="links-container">
+        <h3 style="font-size: 1rem; color: var(--accent-cyan);">Links das Imagens</h3>
+        </div>
 
+    <script>
+        const track = document.getElementById('track');
+        const images = track.getElementsByTagName('img');
+        const linksContainer = document.getElementById('links-container');
+        let index = 0;
+
+        function move(direction) {
+            const total = images.length;
+            index = (index + direction + total) % total;
+            track.style.transform = `translateX(-${index * 100}%)`;
+        }
+
+        // Gera a lista de links automaticamente baseada nas imagens do carrossel
+        Array.from(images).forEach((img, i) => {
+            const div = document.createElement('div');
+            div.className = 'image-item';
+            div.innerHTML = `
+                <div class="image-info">
+                    <img src="${img.src}" class="thumb">
+                    <span class="image-name">Banner ${i + 1}</span>
+                </div>
+                <button class="copy-btn" onclick="copyLink('${img.src}')">COPIAR LINK</button>
+            `;
+            linksContainer.appendChild(div);
+        });
+
+        function copyLink(url) {
+            navigator.clipboard.writeText(url);
+            alert("Link copiado! Agora você pode colar no seu Painel do Firebase.");
+        }
+
+        // Auto play opcional
+        setInterval(() => move(1), 5000);
+    </script>
 </body>
 </html>

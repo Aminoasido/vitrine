@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vitrine de Propagandas | BarcoApp</title>
+    <title>Vitrine de Banners | BarcoApp</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -25,31 +25,40 @@
             flex-direction: column;
             align-items: center;
             padding: 20px;
+            min-height: 100vh;
         }
 
         header { text-align: center; margin-bottom: 30px; }
-        header h1 { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; font-size: 1.8rem; }
-        header p { color: var(--text-dim); font-size: 0.9rem; }
+        header h1 { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; font-size: 1.8rem; font-weight: 800; }
+        header p { color: var(--text-dim); font-size: 0.85rem; margin-top: 5px; }
 
-        /* Estilo do Carrossel */
-        .carousel-container {
+        /* Estilo do Carrossel Profissional */
+        .carousel-wrapper {
             width: 100%;
             max-width: 600px;
             position: relative;
-            overflow: hidden;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .carousel-container {
+            width: 100%;
+            overflow: hidden;
+            border-radius: 15px;
+            aspect-ratio: 2 / 1;
         }
 
         .carousel-track {
             display: flex;
-            transition: transform 0.5s ease-in-out;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
         }
 
         .carousel-item {
             min-width: 100%;
-            aspect-ratio: 2 / 1; /* Mantém a proporção 2:1 que recomendamos */
+            height: 100%;
         }
 
         .carousel-item img {
@@ -58,113 +67,136 @@
             object-fit: cover;
         }
 
+        /* Botões de Navegação */
         .nav-btn {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            padding: 10px 15px;
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            width: 40px;
+            height: 40px;
             cursor: pointer;
             border-radius: 50%;
-            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: 0.3s;
         }
-        .prev { left: 10px; }
-        .next { right: 10px; }
 
-        /* Lista de Imagens */
-        .image-list {
+        .nav-btn:hover { background: var(--accent-cyan); color: #000; }
+        .prev { left: -20px; }
+        .next { right: -20px; }
+
+        /* Lista de Arquivos */
+        .file-list {
             width: 100%;
             max-width: 600px;
             margin-top: 40px;
         }
 
-        .image-item {
+        .file-list h3 {
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-item {
             background: var(--card-dark);
-            padding: 15px;
+            padding: 12px 18px;
             border-radius: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .image-info { display: flex; align-items: center; gap: 15px; }
-        .thumb { width: 50px; height: 30px; border-radius: 4px; object-fit: cover; }
-        .image-name { font-size: 0.85rem; font-weight: 600; }
+        .file-info { display: flex; align-items: center; gap: 15px; }
+        .file-info i { color: var(--text-dim); }
+        .file-name { font-size: 0.9rem; font-weight: 600; font-family: monospace; }
         
-        .copy-btn {
-            background: var(--accent-cyan);
-            color: #000;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            cursor: pointer;
+        .status-tag {
+            font-size: 0.65rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(34, 211, 238, 0.1);
+            color: var(--accent-cyan);
+            font-weight: 700;
         }
 
-        .copy-btn:active { transform: scale(0.95); }
+        @media (max-width: 650px) {
+            .prev { left: 10px; }
+            .next { right: 10px; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Vitrine BarcoApp</h1>
-        <p>Gerenciamento de Banners e Propagandas</p>
+        <h1><i class="fas fa-images"></i> VITRINE LOCAL</h1>
+        <p>Pré-visualização de imagens na mesma pasta</p>
     </header>
 
-    <div class="carousel-container">
-        <div class="carousel-track" id="track">
-            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/22d3ee/000000?text=Propaganda+1" alt="Banner 1"></div>
-            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/a855f7/ffffff?text=Propaganda+2" alt="Banner 2"></div>
-            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/22c55e/000000?text=Propaganda+3" alt="Banner 3"></div>
-            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/fbbf24/000000?text=Propaganda+4" alt="Banner 4"></div>
-            <div class="carousel-item"><img src="https://via.placeholder.com/1080x540/ef4444/ffffff?text=Propaganda+5" alt="Banner 5"></div>
-        </div>
+    <div class="carousel-wrapper">
         <button class="nav-btn prev" onclick="move(-1)"><i class="fas fa-chevron-left"></i></button>
         <button class="nav-btn next" onclick="move(1)"><i class="fas fa-chevron-right"></i></button>
+        
+        <div class="carousel-container">
+            <div class="carousel-track" id="track">
+                <div class="carousel-item"><img src="1.png" onerror="this.src='https://via.placeholder.com/1080x540?text=1.png+Não+Encontrado'" alt="Banner 1"></div>
+                <div class="carousel-item"><img src="2.png" onerror="this.src='https://via.placeholder.com/1080x540?text=2.png+Não+Encontrado'" alt="Banner 2"></div>
+                <div class="carousel-item"><img src="3.png" onerror="this.src='https://via.placeholder.com/1080x540?text=3.png+Não+Encontrado'" alt="Banner 3"></div>
+                <div class="carousel-item"><img src="4.png" onerror="this.src='https://via.placeholder.com/1080x540?text=4.png+Não+Encontrado'" alt="Banner 4"></div>
+                <div class="carousel-item"><img src="5.png" onerror="this.src='https://via.placeholder.com/1080x540?text=5.png+Não+Encontrado'" alt="Banner 5"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="image-list" id="links-container">
-        <h3 style="font-size: 1rem; color: var(--accent-cyan);">Links das Imagens</h3>
+    <div class="file-list">
+        <h3><i class="fas fa-list-ul"></i> Arquivos Detectados</h3>
+        
+        <div class="file-item">
+            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">1.png</span></div>
+            <span class="status-tag">LOCAL</span>
         </div>
+        <div class="file-item">
+            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">2.png</span></div>
+            <span class="status-tag">LOCAL</span>
+        </div>
+        <div class="file-item">
+            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">3.png</span></div>
+            <span class="status-tag">LOCAL</span>
+        </div>
+        <div class="file-item">
+            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">4.png</span></div>
+            <span class="status-tag">LOCAL</span>
+        </div>
+        <div class="file-item">
+            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">5.png</span></div>
+            <span class="status-tag">LOCAL</span>
+        </div>
+    </div>
 
     <script>
         const track = document.getElementById('track');
-        const images = track.getElementsByTagName('img');
-        const linksContainer = document.getElementById('links-container');
         let index = 0;
 
         function move(direction) {
-            const total = images.length;
+            const total = 5; // Total de imagens
             index = (index + direction + total) % total;
             track.style.transform = `translateX(-${index * 100}%)`;
         }
 
-        // Gera a lista de links automaticamente baseada nas imagens do carrossel
-        Array.from(images).forEach((img, i) => {
-            const div = document.createElement('div');
-            div.className = 'image-item';
-            div.innerHTML = `
-                <div class="image-info">
-                    <img src="${img.src}" class="thumb">
-                    <span class="image-name">Banner ${i + 1}</span>
-                </div>
-                <button class="copy-btn" onclick="copyLink('${img.src}')">COPIAR LINK</button>
-            `;
-            linksContainer.appendChild(div);
-        });
-
-        function copyLink(url) {
-            navigator.clipboard.writeText(url);
-            alert("Link copiado! Agora você pode colar no seu Painel do Firebase.");
-        }
-
-        // Auto play opcional
-        setInterval(() => move(1), 5000);
+        // Auto-slide a cada 6 segundos
+        setInterval(() => move(1), 6000);
     </script>
 </body>
 </html>

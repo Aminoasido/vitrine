@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+        .swiper { width: 100%; height: 100%; border-radius: 12px; }
+        .swiper-slide { display: flex; justify-content: center; align-items: center; }
+        .swiper-slide img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; cursor: pointer; }
+        .swiper-pagination-bullet-active { background: #22d3ee !important; }
+    </style>
+</head>
+<body>
+
+<div class="swiper">
+    <div class="swiper-wrapper" id="carousel-wrapper"></div>
+    <div class="swiper-pagination"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+<script>
+    // Mesma configuração do Firebase...
+    const firebaseConfig = {
+        apiKey: "AIzaSyDe8vErlAxcDpYqZygWcZAaWT1vGX1P_BM",
+        authDomain: "barcoapp-c0f00.firebaseapp.com",
+        databaseURL: "https://barcoapp-c0f00-default-rtdb.firebaseio.com",
+        projectId: "barcoapp-c0f00",
+        storageBucket: "barcoapp-c0f00.firebasestorage.app",
+        messagingSenderId: "575071745494",
+        appId: "1:575071745494:web:63c1db8d2c1038c27c6077"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const swiper = new Swiper('.swiper', {
+        loop: true,
+        autoplay: { delay: 3000 },
+        pagination: { el: '.swiper-pagination', clickable: true },
+    });
+
+    firebase.database().ref('config/carrossel').on('value', snap => {
+        const wrapper = document.getElementById('carousel-wrapper');
+        wrapper.innerHTML = "";
+        snap.forEach(child => {
+            const data = child.val();
+            const slide = document.createElement('div');
+            slide.className = 'swiper-slide';
+            slide.innerHTML = `<img src="${data.img}" onclick="window.open('${data.link}', '_blank')">`;
+            wrapper.appendChild(slide);
+        });
+        swiper.update();
+    });
+</script>
+</body>
+</html>

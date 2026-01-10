@@ -3,102 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Campanhas | BarcoApp</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <title>Grade de Imagens 2:1</title>
     <style>
-        :root { --primary: #22d3ee; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .upload-card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #334155; margin-bottom: 30px; }
-        .input-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; box-sizing: border-box; }
-        .btn { background: var(--primary); color: #000; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
-        .btn:hover { opacity: 0.8; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .slide-item { background: var(--card); border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #334155; }
-        .slide-item img { width: 100%; height: 150px; object-fit: cover; }
-        .slide-info { padding: 10px; font-size: 0.8rem; }
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .copy-link { background: #334155; padding: 15px; border-radius: 10px; margin-top: 20px; display: flex; align-items: center; justify-content: space-between; }
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .image-grid {
+            display: grid;
+            /* Cria colunas responsivas: mínimo 300px, máximo 1 fração do espaço */
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .image-item {
+            background-color: #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            /* Mantém a proporção 2:1 (1080x540) mesmo antes da imagem carregar */
+            aspect-ratio: 2 / 1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer */
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .image-item img:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2><i class="fas fa-images"></i> Gerenciador de Carrossel</h2>
-    
-    <div class="upload-card">
-        <h3>Nova Campanha</h3>
-        <div class="input-group">
-            <label>URL da Imagem (JPG/PNG)</label>
-            <input type="text" id="imgUrl" placeholder="https://exemplo.com/banner.jpg">
+    <h2 style="text-align: center;">Minha Galeria (2:1)</h2>
+
+    <div class="image-grid" id="gallery">
         </div>
-        <div class="input-group">
-            <label>Link de Destino (Onde o usuário vai ao clicar)</label>
-            <input type="text" id="destinyUrl" placeholder="https://wa.me/...">
-        </div>
-        <button class="btn" onclick="saveSlide()">Adicionar ao Carrossel</button>
-    </div>
 
-    <div class="copy-link">
-        <span><i class="fas fa-link"></i> Link para usar no App:</span>
-        <code id="appLink">carregando...</code>
-    </div>
+    <script>
+        const gallery = document.getElementById('gallery');
+        const totalImages = 20;
 
-    <hr style="border: 0.5px solid #334155; margin: 30px 0;">
+        for (let i = 1; i <= totalImages; i++) {
+            const container = document.createElement('div');
+            container.className = 'image-item';
 
-    <div class="grid" id="slidesGrid"></div>
-</div>
+            const img = document.createElement('img');
+            img.src = `${i}.png`;
+            img.alt = `Imagem ${i}`;
+            img.width = 1080;
+            img.height = 540;
+            // O segredo da performance: carrega apenas quando entra no campo de visão
+            img.loading = 'lazy'; 
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDe8vErlAxcDpYqZygWcZAaWT1vGX1P_BM",
-        authDomain: "barcoapp-c0f00.firebaseapp.com",
-        databaseURL: "https://barcoapp-c0f00-default-rtdb.firebaseio.com",
-        projectId: "barcoapp-c0f00",
-        storageBucket: "barcoapp-c0f00.firebasestorage.app",
-        messagingSenderId: "575071745494",
-        appId: "1:575071745494:web:63c1db8d2c1038c27c6077"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+            container.appendChild(img);
+            gallery.appendChild(container);
+        }
+    </script>
 
-    // Define o link do carrossel (ajuste para o nome do arquivo que você criar no passo 2)
-    document.getElementById('appLink').innerText = window.location.href.replace('gerenciador.html', 'view.html');
-
-    function saveSlide() {
-        const img = document.getElementById('imgUrl').value;
-        const link = document.getElementById('destinyUrl').value;
-        if(!img) return alert("URL da imagem é obrigatória!");
-
-        db.ref('config/carrossel').push({ img, link }).then(() => {
-            document.getElementById('imgUrl').value = "";
-            document.getElementById('destinyUrl').value = "";
-        });
-    }
-
-    db.ref('config/carrossel').on('value', snap => {
-        const grid = document.getElementById('slidesGrid');
-        grid.innerHTML = "";
-        snap.forEach(child => {
-            const data = child.val();
-            grid.innerHTML += `
-                <div class="slide-item">
-                    <button class="delete-btn" onclick="deleteSlide('${child.key}')"><i class="fas fa-trash"></i></button>
-                    <img src="${data.img}">
-                    <div class="slide-info">
-                        <strong>Link:</strong> ${data.link || 'Sem link'}
-                    </div>
-                </div>
-            `;
-        });
-    });
-
-    function deleteSlide(key) {
-        if(confirm("Excluir esta imagem?")) db.ref(`config/carrossel/${key}`).remove();
-    }
-</script>
 </body>
 </html>

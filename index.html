@@ -3,200 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vitrine de Banners | BarcoApp</title>
+    <title>Gerenciador de Campanhas | BarcoApp</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
-        :root {
-            --bg-dark: #0f172a;
-            --card-dark: #1e293b;
-            --accent-cyan: #22d3ee;
-            --text-white: #f8fafc;
-            --text-dim: #94a3b8;
-            --gradient: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-white);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; font-size: 1.8rem; font-weight: 800; }
-        header p { color: var(--text-dim); font-size: 0.85rem; margin-top: 5px; }
-
-        /* Estilo do Carrossel Profissional */
-        .carousel-wrapper {
-            width: 100%;
-            max-width: 600px;
-            position: relative;
-            border-radius: 20px;
-            padding: 10px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .carousel-container {
-            width: 100%;
-            overflow: hidden;
-            border-radius: 15px;
-            aspect-ratio: 2 / 1;
-        }
-
-        .carousel-track {
-            display: flex;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 100%;
-        }
-
-        .carousel-item {
-            min-width: 100%;
-            height: 100%;
-        }
-
-        .carousel-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Botões de Navegação */
-        .nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(15, 23, 42, 0.8);
-            color: var(--accent-cyan);
-            border: 1px solid var(--accent-cyan);
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            transition: 0.3s;
-        }
-
-        .nav-btn:hover { background: var(--accent-cyan); color: #000; }
-        .prev { left: -20px; }
-        .next { right: -20px; }
-
-        /* Lista de Arquivos */
-        .file-list {
-            width: 100%;
-            max-width: 600px;
-            margin-top: 40px;
-        }
-
-        .file-list h3 {
-            font-size: 0.9rem;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .file-item {
-            background: var(--card-dark);
-            padding: 12px 18px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .file-info { display: flex; align-items: center; gap: 15px; }
-        .file-info i { color: var(--text-dim); }
-        .file-name { font-size: 0.9rem; font-weight: 600; font-family: monospace; }
-        
-        .status-tag {
-            font-size: 0.65rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: rgba(34, 211, 238, 0.1);
-            color: var(--accent-cyan);
-            font-weight: 700;
-        }
-
-        @media (max-width: 650px) {
-            .prev { left: 10px; }
-            .next { right: 10px; }
-        }
+        :root { --primary: #22d3ee; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .upload-card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #334155; margin-bottom: 30px; }
+        .input-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; box-sizing: border-box; }
+        .btn { background: var(--primary); color: #000; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn:hover { opacity: 0.8; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .slide-item { background: var(--card); border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #334155; }
+        .slide-item img { width: 100%; height: 150px; object-fit: cover; }
+        .slide-info { padding: 10px; font-size: 0.8rem; }
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .copy-link { background: #334155; padding: 15px; border-radius: 10px; margin-top: 20px; display: flex; align-items: center; justify-content: space-between; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1><i class="fas fa-images"></i> VITRINE LOCAL</h1>
-        <p>Pré-visualização de imagens na mesma pasta</p>
-    </header>
-
-    <div class="carousel-wrapper">
-        <button class="nav-btn prev" onclick="move(-1)"><i class="fas fa-chevron-left"></i></button>
-        <button class="nav-btn next" onclick="move(1)"><i class="fas fa-chevron-right"></i></button>
-        
-        <div class="carousel-container">
-            <div class="carousel-track" id="track">
-                <div class="carousel-item"><img src="1.png" onerror="this.src='https://via.placeholder.com/1080x540?text=1.png+Não+Encontrado'" alt="Banner 1"></div>
-                <div class="carousel-item"><img src="2.png" onerror="this.src='https://via.placeholder.com/1080x540?text=2.png+Não+Encontrado'" alt="Banner 2"></div>
-                <div class="carousel-item"><img src="3.png" onerror="this.src='https://via.placeholder.com/1080x540?text=3.png+Não+Encontrado'" alt="Banner 3"></div>
-                <div class="carousel-item"><img src="4.png" onerror="this.src='https://via.placeholder.com/1080x540?text=4.png+Não+Encontrado'" alt="Banner 4"></div>
-                <div class="carousel-item"><img src="5.png" onerror="this.src='https://via.placeholder.com/1080x540?text=5.png+Não+Encontrado'" alt="Banner 5"></div>
-            </div>
+<div class="container">
+    <h2><i class="fas fa-images"></i> Gerenciador de Carrossel</h2>
+    
+    <div class="upload-card">
+        <h3>Nova Campanha</h3>
+        <div class="input-group">
+            <label>URL da Imagem (JPG/PNG)</label>
+            <input type="text" id="imgUrl" placeholder="https://exemplo.com/banner.jpg">
         </div>
+        <div class="input-group">
+            <label>Link de Destino (Onde o usuário vai ao clicar)</label>
+            <input type="text" id="destinyUrl" placeholder="https://wa.me/...">
+        </div>
+        <button class="btn" onclick="saveSlide()">Adicionar ao Carrossel</button>
     </div>
 
-    <div class="file-list">
-        <h3><i class="fas fa-list-ul"></i> Arquivos Detectados</h3>
-        
-        <div class="file-item">
-            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">1.png</span></div>
-            <span class="status-tag">LOCAL</span>
-        </div>
-        <div class="file-item">
-            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">2.png</span></div>
-            <span class="status-tag">LOCAL</span>
-        </div>
-        <div class="file-item">
-            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">3.png</span></div>
-            <span class="status-tag">LOCAL</span>
-        </div>
-        <div class="file-item">
-            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">4.png</span></div>
-            <span class="status-tag">LOCAL</span>
-        </div>
-        <div class="file-item">
-            <div class="file-info"><i class="far fa-image"></i> <span class="file-name">5.png</span></div>
-            <span class="status-tag">LOCAL</span>
-        </div>
+    <div class="copy-link">
+        <span><i class="fas fa-link"></i> Link para usar no App:</span>
+        <code id="appLink">carregando...</code>
     </div>
 
-    <script>
-        const track = document.getElementById('track');
-        let index = 0;
+    <hr style="border: 0.5px solid #334155; margin: 30px 0;">
 
-        function move(direction) {
-            const total = 5; // Total de imagens
-            index = (index + direction + total) % total;
-            track.style.transform = `translateX(-${index * 100}%)`;
-        }
+    <div class="grid" id="slidesGrid"></div>
+</div>
 
-        // Auto-slide a cada 6 segundos
-        setInterval(() => move(1), 6000);
-    </script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDe8vErlAxcDpYqZygWcZAaWT1vGX1P_BM",
+        authDomain: "barcoapp-c0f00.firebaseapp.com",
+        databaseURL: "https://barcoapp-c0f00-default-rtdb.firebaseio.com",
+        projectId: "barcoapp-c0f00",
+        storageBucket: "barcoapp-c0f00.firebasestorage.app",
+        messagingSenderId: "575071745494",
+        appId: "1:575071745494:web:63c1db8d2c1038c27c6077"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Define o link do carrossel (ajuste para o nome do arquivo que você criar no passo 2)
+    document.getElementById('appLink').innerText = window.location.href.replace('gerenciador.html', 'view.html');
+
+    function saveSlide() {
+        const img = document.getElementById('imgUrl').value;
+        const link = document.getElementById('destinyUrl').value;
+        if(!img) return alert("URL da imagem é obrigatória!");
+
+        db.ref('config/carrossel').push({ img, link }).then(() => {
+            document.getElementById('imgUrl').value = "";
+            document.getElementById('destinyUrl').value = "";
+        });
+    }
+
+    db.ref('config/carrossel').on('value', snap => {
+        const grid = document.getElementById('slidesGrid');
+        grid.innerHTML = "";
+        snap.forEach(child => {
+            const data = child.val();
+            grid.innerHTML += `
+                <div class="slide-item">
+                    <button class="delete-btn" onclick="deleteSlide('${child.key}')"><i class="fas fa-trash"></i></button>
+                    <img src="${data.img}">
+                    <div class="slide-info">
+                        <strong>Link:</strong> ${data.link || 'Sem link'}
+                    </div>
+                </div>
+            `;
+        });
+    });
+
+    function deleteSlide(key) {
+        if(confirm("Excluir esta imagem?")) db.ref(`config/carrossel/${key}`).remove();
+    }
+</script>
 </body>
 </html>

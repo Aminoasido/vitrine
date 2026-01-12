@@ -143,21 +143,16 @@
                     <h2 id="modal-name" style="margin:0; color:var(--accent-cyan); font-weight: 800; font-size: 1.4rem;"></h2>
                     <button id="btn-share-post" style="background:var(--glass); border:none; color:var(--accent-cyan); width:40px; height:40px; border-radius:12px; cursor:pointer;"><i class="fas fa-share-alt"></i></button>
                 </div>
-                
                 <div id="modal-departure-text" style="color: var(--accent-yellow); font-size: 0.8rem; margin: 10px 0; font-weight: 700;"></div>
-                
                 <div id="modal-route" style="font-weight:800; padding:15px; background: rgba(255,255,255,0.03); border-radius: 16px; text-align: center; border: 1px solid var(--glass); color: #fff;"></div>
-                
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:15px; font-size: 0.85rem;">
                     <div id="modal-date"></div><div id="modal-time"></div>
                     <div id="modal-price-p" style="color:var(--accent-green); font-weight: 700;"></div><div id="modal-price-c" style="color:var(--accent-yellow); font-weight: 700;"></div>
                 </div>
-
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <button id="btn-like" class="btn-main" style="background:var(--accent-green); color:#000; flex:1;">GOSTEI</button>
                     <button id="btn-dislike" class="btn-main" style="background:#ef4444; flex:1;">NÃO GOSTEI</button>
                 </div>
-
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
                     <button id="btn-wa1" class="btn-main" style="background:#25d366; color:#000;">ZAP 1</button>
                     <button id="btn-wa2" class="btn-main" style="background:#128c7e;">ZAP 2</button>
@@ -212,7 +207,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script>
-        // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDe8vErlAxcDpYqZygWcZAaWT1vGX1P_BM",
             authDomain: "barcoapp-c0f00.firebaseapp.com",
@@ -228,14 +222,13 @@
         let currentUser = JSON.parse(localStorage.getItem('barco_user_data'));
         let currentImg = "";
         let currentDayPage = "";
+        let showcaseSwiperInstance = null; // Guardar instância para atualizar
         const diasSemana = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 
-        // FUNÇÃO PARA FORMATAR DATA BRASILEIRA (DD/MM/YYYY)
         function formatDateBR(dateStr) {
             if(!dateStr) return "";
             const parts = dateStr.split('-');
-            if(parts.length !== 3) return dateStr;
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
         }
 
         function navigate(id) {
@@ -296,15 +289,23 @@
                         wrapper.appendChild(slide);
                     });
                 });
-                new Swiper(".showcaseSwiper", { slidesPerView: "auto", spaceBetween: 15, freeMode: true });
+
+                if(showcaseSwiperInstance) showcaseSwiperInstance.destroy();
+                showcaseSwiperInstance = new Swiper(".showcaseSwiper", { slidesPerView: "auto", spaceBetween: 15, freeMode: true, observer: true, observeParents: true });
             });
         }
 
+        // CORREÇÃO DO ERRO DE ARRASTO NA BUSCA
         function filterShowcase(query) {
             const term = query.toLowerCase();
             document.querySelectorAll('.boat-slide-item').forEach(s => {
                 s.style.display = s.getAttribute('data-search').includes(term) ? 'block' : 'none';
             });
+            // ESSENCIAL: Avisa o Swiper que os itens mudaram para ele recalcular o tamanho do arraste
+            if(showcaseSwiperInstance) {
+                showcaseSwiperInstance.update();
+                showcaseSwiperInstance.slideTo(0);
+            }
         }
 
         function openDirectDetails(day, key) { currentDayPage = day; openDetails(key); }
@@ -345,7 +346,7 @@
         }
 
         function shareBoat(boat) {
-            const dataBR = formatDateBR(boat.date); // DATA EM PT-BR
+            const dataBR = formatDateBR(boat.date);
             const text = `🚢 *Escala de Embarcação no BarcoApp*\n\n` +
                          `🛳 *Barco:* ${boat.name}\n` +
                          `📍 *Saída:* ${boat.departure || 'Não informado'}\n` +
@@ -355,37 +356,27 @@
                          `🛌 *Camarote:* R$ ${boat.price_c}\n\n` +
                          `📲 Confira mais no BarcoApp: ${window.location.href}`;
             
-            if (navigator.share) {
-                navigator.share({ title: 'BarcoApp', text: text, url: window.location.href });
-            } else {
-                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-            }
+            if (navigator.share) navigator.share({ title: 'BarcoApp', text: text, url: window.location.href });
+            else window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
         }
 
         function openDetails(key) {
             rtdb.ref(`barcos/${currentDayPage}/${key}`).once('value', s => {
                 const b = s.val();
-                const dataBR = formatDateBR(b.date); // CORREÇÃO DATA
-
+                const dataBR = formatDateBR(b.date);
                 document.getElementById('modal-img').src = b.img || 'https://via.placeholder.com/400';
                 document.getElementById('modal-name').innerText = b.name;
-                
-                // CORREÇÃO LOCAL DE SAÍDA NO MODAL
                 document.getElementById('modal-departure-text').innerHTML = `<i class="fas fa-anchor"></i> SAÍDA: ${b.departure || "Não informado"}`;
-                
                 document.getElementById('modal-route').innerHTML = `${b.origin} <i class="fas fa-arrow-right"></i> ${b.destiny}`;
                 document.getElementById('modal-date').innerText = "📅 Data: " + dataBR;
                 document.getElementById('modal-time').innerText = "⏰ Hora: " + b.time;
                 document.getElementById('modal-price-p').innerText = "🎟 Passagem: R$ " + b.price_p;
                 document.getElementById('modal-price-c').innerText = "🛌 Camarote: R$ " + b.price_c;
-                
                 document.getElementById('btn-like').onclick = () => registerVote(key, 'likes');
                 document.getElementById('btn-dislike').onclick = () => registerVote(key, 'dislikes');
                 document.getElementById('btn-share-post').onclick = () => shareBoat(b);
-
                 document.getElementById('btn-wa1').onclick = () => window.open(`https://wa.me/55${b.tel1.replace(/\D/g,'')}?text=Vi seu barco no BarcoApp!`);
                 document.getElementById('btn-wa2').onclick = () => window.open(`https://wa.me/55${b.tel2.replace(/\D/g,'')}?text=Vi seu barco no BarcoApp!`);
-                
                 document.getElementById('boat-modal').style.display = 'flex';
             });
         }
@@ -425,13 +416,10 @@
         function publish() {
             const name = document.getElementById('in-name').value;
             const dateVal = document.getElementById('in-date').value;
-            const departure = document.getElementById('in-departure').value; // PEGA O PORTO
             if(!name || !dateVal) return alert("Preencha Nome e Data!");
             const boat = {
-                name, 
-                departure: departure, // SALVA O PORTO
-                origin: document.getElementById('in-origin').value, 
-                destiny: document.getElementById('in-destiny').value,
+                name, departure: document.getElementById('in-departure').value,
+                origin: document.getElementById('in-origin').value, destiny: document.getElementById('in-destiny').value,
                 date: dateVal, time: document.getElementById('in-time').value,
                 price_p: document.getElementById('in-price-p').value, price_c: document.getElementById('in-price-c').value,
                 tel1: document.getElementById('in-tel-1').value, tel2: document.getElementById('in-tel-2').value,
@@ -479,7 +467,7 @@
             });
         }
 
-        function shareApp() { window.open("https://wa.me/?text=🚢 Confira as escalas no BarcoApp: " + window.location.href); }
+        function shareApp() { window.open("https://wa.me/?text=🚢 BarcoApp: " + window.location.href); }
         window.onload = () => { if(currentUser) startApp(); };
     </script>
 </body>

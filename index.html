@@ -354,6 +354,7 @@
                 if(!b) return;
                 document.getElementById('modal-img').src = b.img || 'https://via.placeholder.com/400';
                 document.getElementById('modal-name').innerText = b.name;
+                // CORREÇÃO: Mostrando Local de Saída
                 document.getElementById('modal-departure').innerText = b.departure || "Não informado";
                 document.getElementById('modal-route').innerHTML = `${b.origin} <i class="fas fa-arrow-right" style="color:var(--accent-cyan); font-size:0.8rem; margin:0 10px;"></i> ${b.destiny}`;
                 document.getElementById('modal-date').innerText = b.date;
@@ -363,8 +364,8 @@
                 document.getElementById('btn-like').onclick = () => registerVote(key, 'likes');
                 document.getElementById('btn-dislike').onclick = () => registerVote(key, 'dislikes');
                 
-                // Mensagem personalizada solicitada
-                const customMsg = encodeURIComponent("📌 Esta embarcação foi localizada através do BarcoApp ⚓\nFaça parte da nossa rede de parceiros e ganhe mais visibilidade!\n🔗 Conheça mais: https://aminoasido.github.io/vitrine/\n\n🙋 \"Olá! Tudo bem? 😊\nPoderia me passar informações sobre esta embarcação?\nTenho interesse e gostaria de saber mais detalhes.\"");
+                // MENSAGEM PERSONALIZADA WHATSAPP
+                const customMsg = encodeURIComponent("📌 Esta embarcação foi localizada através do BarcoApp ⚓\nConheça: https://sites.google.com/view/navegpurus/home\n\n\"Olá! Tudo bem? 😊\nPoderia me passar informações sobre esta embarcação?\nTenho interesse e gostaria de saber mais detalhes.\"");
                 
                 document.getElementById('btn-wa1').onclick = () => window.open(`https://wa.me/55${b.tel1.replace(/\D/g,'')}?text=${customMsg}`);
                 document.getElementById('btn-wa2').onclick = () => window.open(`https://wa.me/55${b.tel2.replace(/\D/g,'')}?text=${customMsg}`);
@@ -438,11 +439,6 @@
                 alert("Publicado!");
                 navigate('screen-main');
                 currentImg = "";
-                // Limpar campos
-                document.getElementById('in-name').value = "";
-                document.getElementById('in-departure').value = "";
-                document.getElementById('preview-img').style.display = 'none';
-                document.getElementById('camera-icon').style.display = 'block';
             });
         }
 

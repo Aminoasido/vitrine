@@ -31,9 +31,8 @@
         
         .main-container { display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 30px; }
         
-        /* Novo estilo da vitrine com efeito de corte */
         .showcase-container { margin: 20px 0; padding-left: 20px; }
-        .showcase-swiper { overflow: visible !important; } /* Permite ver o próximo item cortado */
+        .showcase-swiper { overflow: visible !important; } 
         
         .btn-open-week {
             background: var(--gradient); border: none;
@@ -85,7 +84,6 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: var(--card-dark); width: 100%; max-width: 450px; border-radius: 30px; overflow-y: auto; max-height: 90vh; }
         
-        /* Tag de Dia na Vitrine */
         .day-tag-float {
             position: absolute; top: 8px; left: 8px; background: var(--accent-cyan);
             color: #000; font-size: 0.55rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; z-index: 10;
@@ -138,8 +136,7 @@
         <div class="showcase-container">
             <h3 style="margin: 0 0 15px 0; font-size: 0.9rem; letter-spacing: 1px; color: var(--text-dim);">EM DESTAQUE</h3>
             <div class="swiper-container showcaseSwiper">
-                <div class="swiper-wrapper" id="dynamic-showcase-wrapper">
-                    </div>
+                <div class="swiper-wrapper" id="dynamic-showcase-wrapper"></div>
             </div>
         </div>
 
@@ -225,7 +222,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script>
-        // CONFIGURAÇÕES FIREBASE (MANTIDAS)
         const firebaseConfig = {
             apiKey: "AIzaSyDe8vErlAxcDpYqZygWcZAaWT1vGX1P_BM",
             authDomain: "barcoapp-c0f00.firebaseapp.com",
@@ -268,11 +264,10 @@
             renderWeekList();
             listenAlerts();
             listenCarousel();
-            listenDynamicShowcase(); // Nova função
+            listenDynamicShowcase();
             updateStats();
         }
 
-        // --- NOVA FUNÇÃO: VITRINE DINÂMICA ---
         function listenDynamicShowcase() {
             rtdb.ref('barcos').on('value', snapshot => {
                 const wrapper = document.getElementById('dynamic-showcase-wrapper');
@@ -286,7 +281,7 @@
                         const b = boats[boatId];
                         const slide = document.createElement('div');
                         slide.className = 'swiper-slide';
-                        slide.style.width = '160px'; // Tamanho fixo para o efeito de corte
+                        slide.style.width = '160px';
                         slide.innerHTML = `
                             <div class="boat-card" onclick="openDirectDetails('${dayName}', '${boatId}')">
                                 <div class="day-tag-float">${dayName}</div>
@@ -311,13 +306,11 @@
             });
         }
 
-        // --- NOVA FUNÇÃO: ACESSO DIRETO ---
         function openDirectDetails(day, key) {
-            currentDayPage = day; // Seta o dia para a função original de voto funcionar
+            currentDayPage = day; 
             openDetails(key);
         }
 
-        // --- FUNÇÕES ORIGINAIS PRESERVADAS ---
         function renderWeekList() {
             const container = document.getElementById('week-list-container');
             container.innerHTML = "";
@@ -369,8 +362,13 @@
                 document.getElementById('modal-price-c').innerText = 'R$ ' + b.price_c;
                 document.getElementById('btn-like').onclick = () => registerVote(key, 'likes');
                 document.getElementById('btn-dislike').onclick = () => registerVote(key, 'dislikes');
-                document.getElementById('btn-wa1').onclick = () => window.open('https://wa.me/55'+b.tel1.replace(/\D/g,''));
-                document.getElementById('btn-wa2').onclick = () => window.open('https://wa.me/55'+b.tel2.replace(/\D/g,''));
+                
+                // Mensagem personalizada solicitada
+                const customMsg = encodeURIComponent("📌 Esta embarcação foi localizada através do BarcoApp ⚓\nFaça parte da nossa rede de parceiros e ganhe mais visibilidade!\n🔗 Conheça mais: https://aminoasido.github.io/vitrine/\n\n🙋 \"Olá! Tudo bem? 😊\nPoderia me passar informações sobre esta embarcação?\nTenho interesse e gostaria de saber mais detalhes.\"");
+                
+                document.getElementById('btn-wa1').onclick = () => window.open(`https://wa.me/55${b.tel1.replace(/\D/g,'')}?text=${customMsg}`);
+                document.getElementById('btn-wa2').onclick = () => window.open(`https://wa.me/55${b.tel2.replace(/\D/g,'')}?text=${customMsg}`);
+                
                 document.getElementById('boat-modal').style.display = 'flex';
             });
         }
@@ -440,6 +438,11 @@
                 alert("Publicado!");
                 navigate('screen-main');
                 currentImg = "";
+                // Limpar campos
+                document.getElementById('in-name').value = "";
+                document.getElementById('in-departure').value = "";
+                document.getElementById('preview-img').style.display = 'none';
+                document.getElementById('camera-icon').style.display = 'block';
             });
         }
 

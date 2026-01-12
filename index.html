@@ -32,7 +32,6 @@
         .main-container { display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 100px; }
         .showcase-container { margin: 25px 0; padding-left: 20px; }
         
-        /* Botões */
         .btn-open-week {
             background: var(--gradient); border: none;
             margin: 10px 20px; padding: 18px; border-radius: 20px;
@@ -40,9 +39,7 @@
             font-weight: 800; color: #000; cursor: pointer;
             box-shadow: 0 10px 20px rgba(34, 211, 238, 0.15);
         }
-        .btn-open-week:active { transform: scale(0.96); }
 
-        /* BUSCA */
         .search-wrapper { margin: 5px 20px 15px 20px; position: relative; }
         .search-bar {
             width: 100%; background: var(--card-dark); border: 1px solid var(--glass);
@@ -51,7 +48,6 @@
         }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--accent-cyan); }
 
-        /* Modais */
         .week-modal {
             display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 75%;
             background: #0f172a; border-top: 3px solid var(--accent-cyan);
@@ -60,7 +56,6 @@
         }
         .day-row { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
 
-        /* Cards */
         .feed { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; }
         .boat-card { background: var(--card-dark); border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.3); height: 100%; }
         .boat-img-container { position: relative; width: 100%; height: 120px; background: #1f2937; }
@@ -72,9 +67,12 @@
         .fab-container { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 999; }
         .fab { width: 56px; height: 56px; border-radius: 50%; border: none; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; padding: 15px; }
-        .modal-content { background: var(--card-dark); width: 100%; max-width: 450px; border-radius: 30px; overflow-y: auto; max-height: 90vh; border: 1px solid var(--glass); }
+        .modal-content { background: var(--card-dark); width: 100%; max-width: 450px; border-radius: 30px; overflow-y: auto; max-height: 90vh; border: 1px solid var(--glass); position: relative;}
         .day-tag-float { position: absolute; top: 8px; left: 8px; background: var(--accent-cyan); color: #000; font-size: 0.55rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; z-index: 10; }
         .input-premium { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass); background: #0c121e; color: white; outline: none; }
+        
+        /* Estilo do botão de fechar modal para não sumir */
+        .btn-close-modal { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; z-index: 10; cursor: pointer;}
     </style>
 </head>
 <body>
@@ -138,6 +136,37 @@
         </div>
     </section>
 
+    <div id="boat-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="btn-close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <img id="modal-img" style="width:100%; height:220px; object-fit:cover; border-radius:30px 30px 0 0;">
+            <div style="padding:25px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <h2 id="modal-name" style="margin:0; color:var(--accent-cyan); font-weight: 800; font-size: 1.4rem;"></h2>
+                    <button id="btn-share-post" style="background:var(--glass); border:none; color:var(--accent-cyan); width:40px; height:40px; border-radius:12px; cursor:pointer;"><i class="fas fa-share-alt"></i></button>
+                </div>
+                
+                <div id="modal-departure" style="color: var(--accent-yellow); font-size: 0.8rem; margin: 10px 0; font-weight: 700;"></div>
+                <div id="modal-route" style="font-weight:800; padding:15px; background: rgba(255,255,255,0.03); border-radius: 16px; text-align: center; border: 1px solid var(--glass); color: #fff;"></div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:15px; font-size: 0.85rem;">
+                    <div id="modal-date"></div><div id="modal-time"></div>
+                    <div id="modal-price-p" style="color:var(--accent-green); font-weight: 700;"></div><div id="modal-price-c" style="color:var(--accent-yellow); font-weight: 700;"></div>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button id="btn-like" class="btn-main" style="background:var(--accent-green); color:#000; flex:1;">GOSTEI</button>
+                    <button id="btn-dislike" class="btn-main" style="background:#ef4444; flex:1;">NÃO GOSTEI</button>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                    <button id="btn-wa1" class="btn-main" style="background:#25d366; color:#000;">ZAP 1</button>
+                    <button id="btn-wa2" class="btn-main" style="background:#128c7e;">ZAP 2</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="weekModal" class="week-modal">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
             <h3 style="margin:0; font-size: 1.4rem;">Escala Semanal</h3>
@@ -182,32 +211,9 @@
         <button class="btn-main" onclick="publish()" style="margin-top:20px;">PUBLICAR AGORA</button>
     </section>
 
-    <div id="boat-modal" class="modal" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <img id="modal-img" style="width:100%; height:220px; object-fit:cover; border-radius:30px 30px 0 0;">
-            <div style="padding:25px;">
-                <h2 id="modal-name" style="margin:0; color:var(--accent-cyan); font-weight: 800;"></h2>
-                <div id="modal-departure" style="color: var(--accent-yellow); font-size: 0.8rem; margin: 10px 0;"></div>
-                <div id="modal-route" style="font-weight:800; padding:15px; background: rgba(255,255,255,0.03); border-radius: 16px; text-align: center; border: 1px solid var(--glass);"></div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:15px;">
-                    <div id="modal-date"></div><div id="modal-time"></div>
-                    <div id="modal-price-p" style="color:var(--accent-green)"></div><div id="modal-price-c" style="color:var(--accent-yellow)"></div>
-                </div>
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button id="btn-like" class="btn-main" style="background:var(--accent-green); color:#000;">GOSTEI</button>
-                    <button id="btn-dislike" class="btn-main" style="background:#ef4444;">NÃO GOSTEI</button>
-                </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-                    <button id="btn-wa1" class="btn-main" style="background:#25d366; color:#000;">ZAP 1</button>
-                    <button id="btn-wa2" class="btn-main" style="background:#128c7e;">ZAP 2</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script>
-        // FIREBASE
+        // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDe8vErlAxcDpYqZygWcZAaWT1vGX1P_BM",
             authDomain: "barcoapp-c0f00.firebaseapp.com",
@@ -267,7 +273,7 @@
                         const b = boats[boatId];
                         const slide = document.createElement('div');
                         slide.className = 'swiper-slide boat-slide-item';
-                        slide.style.width = '195px'; // TAMANHO APRIMORADO
+                        slide.style.width = '195px';
                         slide.setAttribute('data-search', `${b.name} ${b.destiny} ${b.origin}`.toLowerCase());
                         slide.innerHTML = `
                             <div class="boat-card" onclick="openDirectDetails('${dayName}', '${boatId}')">
@@ -331,21 +337,45 @@
             });
         }
 
+        // FUNÇÃO DE COMPARTILHAR PUBLICAÇÃO ESPECÍFICA
+        function shareBoat(boat) {
+            const text = `🚢 *Escala de Embarcação no BarcoApp*\n\n` +
+                         `🛳 *Barco:* ${boat.name}\n` +
+                         `📍 *Saída:* ${boat.departure || 'Porto'}\n` +
+                         `🛣 *Rota:* ${boat.origin} x ${boat.destiny}\n` +
+                         `📅 *Data:* ${boat.date} às ${boat.time}\n` +
+                         `💰 *Passagem:* R$ ${boat.price_p}\n` +
+                         `🛌 *Camarote:* R$ ${boat.price_c}\n\n` +
+                         `📲 Confira mais no BarcoApp: ${window.location.href}`;
+            
+            if (navigator.share) {
+                navigator.share({ title: 'BarcoApp', text: text, url: window.location.href });
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+            }
+        }
+
         function openDetails(key) {
             rtdb.ref(`barcos/${currentDayPage}/${key}`).once('value', s => {
                 const b = s.val();
                 document.getElementById('modal-img').src = b.img || 'https://via.placeholder.com/400';
                 document.getElementById('modal-name').innerText = b.name;
-                document.getElementById('modal-departure').innerText = "SAÍDA: " + (b.departure || "Não informado");
-                document.getElementById('modal-route').innerHTML = `${b.origin} → ${b.destiny}`;
-                document.getElementById('modal-date').innerText = "Data: " + b.date;
-                document.getElementById('modal-time').innerText = "Hora: " + b.time;
-                document.getElementById('modal-price-p').innerText = "Pass: R$" + b.price_p;
-                document.getElementById('modal-price-c').innerText = "Cam: R$" + b.price_c;
+                document.getElementById('modal-departure').innerText = "📍 SAÍDA: " + (b.departure || "Não informado");
+                document.getElementById('modal-route').innerHTML = `${b.origin} <i class="fas fa-arrow-right"></i> ${b.destiny}`;
+                document.getElementById('modal-date').innerText = "📅 Data: " + b.date;
+                document.getElementById('modal-time').innerText = "⏰ Hora: " + b.time;
+                document.getElementById('modal-price-p').innerText = "🎟 Passagem: R$ " + b.price_p;
+                document.getElementById('modal-price-c').innerText = "🛌 Camarote: R$ " + b.price_c;
+                
                 document.getElementById('btn-like').onclick = () => registerVote(key, 'likes');
                 document.getElementById('btn-dislike').onclick = () => registerVote(key, 'dislikes');
-                document.getElementById('btn-wa1').onclick = () => window.open(`https://wa.me/55${b.tel1.replace(/\D/g,'')}`);
-                document.getElementById('btn-wa2').onclick = () => window.open(`https://wa.me/55${b.tel2.replace(/\D/g,'')}`);
+                
+                // Configura o botão de compartilhar desta publicação
+                document.getElementById('btn-share-post').onclick = () => shareBoat(b);
+
+                document.getElementById('btn-wa1').onclick = () => window.open(`https://wa.me/55${b.tel1.replace(/\D/g,'')}?text=Vi seu barco no BarcoApp!`);
+                document.getElementById('btn-wa2').onclick = () => window.open(`https://wa.me/55${b.tel2.replace(/\D/g,'')}?text=Vi seu barco no BarcoApp!`);
+                
                 document.getElementById('boat-modal').style.display = 'flex';
             });
         }
@@ -353,10 +383,10 @@
         function registerVote(boatKey, type) {
             const voteLockRef = rtdb.ref(`votos_registrados/${boatKey}/${currentUser.phone}`);
             voteLockRef.once('value', snap => {
-                if (snap.exists()) return alert("Já avaliou!");
+                if (snap.exists()) return alert("Você já avaliou este barco!");
                 voteLockRef.set({ voto: type }).then(() => {
                     rtdb.ref(`barcos/${currentDayPage}/${boatKey}/${type}`).transaction(v => (v || 0) + 1);
-                    alert("Voto registrado!");
+                    alert("Obrigado por avaliar!");
                     closeModal();
                 });
             });
@@ -395,7 +425,7 @@
                 img: currentImg, likes: 0, dislikes: 0, registeredBy: currentUser.phone
             };
             const dName = diasSemana[new Date(dateVal.split('-')[0], dateVal.split('-')[1]-1, dateVal.split('-')[2]).getDay()];
-            rtdb.ref('barcos/' + dName).push(boat).then(() => { alert("Publicado!"); navigate('screen-main'); });
+            rtdb.ref('barcos/' + dName).push(boat).then(() => { alert("Publicado com sucesso!"); navigate('screen-main'); });
         }
 
         function listenCarousel() {
@@ -436,7 +466,7 @@
             });
         }
 
-        function shareApp() { window.open("https://wa.me/?text=🚢 BarcoApp: " + window.location.href); }
+        function shareApp() { window.open("https://wa.me/?text=🚢 Confira as escalas no BarcoApp: " + window.location.href); }
         window.onload = () => { if(currentUser) startApp(); };
     </script>
 </body>

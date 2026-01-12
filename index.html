@@ -31,7 +31,7 @@
         
         /* Containers */
         .main-container { display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 100px; }
-        .showcase-container { margin: 20px 0; padding-left: 20px; }
+        .showcase-container { margin: 25px 0; padding-left: 20px; }
         .showcase-swiper { overflow: visible !important; } 
 
         /* Botões */
@@ -44,14 +44,15 @@
         }
         .btn-open-week:active { transform: scale(0.96); }
 
-        /* BUSCA (NOVO) */
-        .search-wrapper { margin: 20px 20px 10px 20px; position: relative; }
+        /* BUSCA PREMIUM */
+        .search-wrapper { margin: 5px 20px 15px 20px; position: relative; }
         .search-bar {
             width: 100%; background: var(--card-dark); border: 1px solid var(--glass);
             padding: 16px 20px 16px 45px; border-radius: 18px; color: white;
             font-family: inherit; font-size: 0.9rem; outline: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .search-bar:focus { border-color: var(--accent-cyan); }
+        .search-bar:focus { border-color: var(--accent-cyan); background: #161e2e; }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--accent-cyan); }
 
         /* Modais */
@@ -140,15 +141,6 @@
             </div>
         </div>
 
-        <div class="search-wrapper">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="main-search" class="search-bar" placeholder="Buscar barco ou cidade..." onkeyup="filterShowcase(this.value)">
-        </div>
-
-        <div class="btn-open-week" onclick="toggleWeek(true)">
-            <i class="far fa-calendar-alt"></i> VER AGENDA SEMANAL
-        </div>
-
         <div style="background:var(--glass); margin:20px; padding:18px; border-radius:24px; border:1px solid rgba(255,255,255,0.05);">
             <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--text-dim); font-weight: 800; margin-bottom: 10px;">
                 <span>SEUS PONTOS: <b id="total-likes-count" style="color:var(--accent-cyan)">0</b></span>
@@ -157,6 +149,15 @@
             <div style="width:100%; height:8px; background:#000; border-radius:10px;">
                 <div id="thermometer-bar" style="height:100%; width:0%; background:var(--gradient); border-radius:10px; transition: width 1s ease-in-out;"></div>
             </div>
+        </div>
+
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="main-search" class="search-bar" placeholder="Buscar barco ou cidade..." onkeyup="filterShowcase(this.value)">
+        </div>
+
+        <div class="btn-open-week" onclick="toggleWeek(true)">
+            <i class="far fa-calendar-alt"></i> VER AGENDA SEMANAL
         </div>
 
         <div class="showcase-container">
@@ -262,7 +263,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script>
-        // CONFIGURAÇÃO FIREBASE (MANTIDA ORIGINAL)
+        // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDe8vErlAxcDpYqZygWcZAaWT1vGX1P_BM",
             authDomain: "barcoapp-c0f00.firebaseapp.com",
@@ -279,9 +280,8 @@
         let currentImg = "";
         let currentDayPage = "";
         const diasSemana = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
-        let allBoatsData = []; // Cache para busca
 
-        // FUNÇÕES DE NAVEGAÇÃO
+        // NAVEGAÇÃO
         function navigate(id) {
             document.querySelectorAll('section').forEach(s => s.style.display = 'none');
             const el = document.getElementById(id);
@@ -319,29 +319,23 @@
                 const allDays = snapshot.val();
                 if(!allDays) return;
 
-                allBoatsData = []; // Limpa cache para busca
-
                 Object.keys(allDays).forEach(dayName => {
                     const boats = allDays[dayName];
                     Object.keys(boats).forEach(boatId => {
                         const b = boats[boatId];
-                        b.id = boatId;
-                        b.diaOriginal = dayName;
-                        allBoatsData.push(b); // Adiciona ao cache de busca
-
                         const slide = document.createElement('div');
                         slide.className = 'swiper-slide boat-slide-item';
-                        slide.style.width = '165px';
+                        slide.style.width = '190px'; // Aumentado para melhor visualização
                         slide.setAttribute('data-search', `${b.name} ${b.destiny} ${b.origin}`.toLowerCase());
                         slide.innerHTML = `
                             <div class="boat-card" onclick="openDirectDetails('${dayName}', '${boatId}')">
                                 <div class="day-tag-float">${dayName}</div>
-                                <div class="boat-img-container" style="height: 110px;">
+                                <div class="boat-img-container" style="height: 130px;">
                                     <img src="${b.img || 'https://via.placeholder.com/150'}" class="boat-img">
-                                    <div class="boat-overlay-name" style="font-size:0.65rem; padding: 12px 8px;">${b.name}</div>
+                                    <div class="boat-overlay-name" style="font-size:0.75rem; padding: 15px 10px;">${b.name}</div>
                                 </div>
-                                <div class="route-box" style="font-size: 0.55rem; padding: 10px 4px;">
-                                    ${b.origin} <i class="fas fa-arrow-right" style="font-size: 0.5rem; color:var(--accent-cyan)"></i> ${b.destiny}
+                                <div class="route-box" style="font-size: 0.6rem; padding: 12px 6px;">
+                                    ${b.origin} <i class="fas fa-arrow-right" style="font-size: 0.55rem; color:var(--accent-cyan)"></i> ${b.destiny}
                                 </div>
                             </div>
                         `;
@@ -351,13 +345,13 @@
 
                 new Swiper(".showcaseSwiper", {
                     slidesPerView: "auto",
-                    spaceBetween: 15,
+                    spaceBetween: 18,
                     freeMode: true
                 });
             });
         }
 
-        // FUNÇÃO DE FILTRO (BUSCA)
+        // FILTRO DE BUSCA
         function filterShowcase(query) {
             const term = query.toLowerCase();
             const slides = document.querySelectorAll('.boat-slide-item');

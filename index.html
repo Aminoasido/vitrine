@@ -365,7 +365,7 @@
                 document.getElementById('btn-dislike').onclick = () => registerVote(key, 'dislikes');
                 
                 // MENSAGEM PERSONALIZADA WHATSAPP
-                const customMsg = encodeURIComponent("📌 Esta embarcação foi localizada através do BarcoApp ⚓\nConheça: https://sites.google.com/view/navegpurus/home\n\n\"Olá! Tudo bem? 😊\nPoderia me passar informações sobre esta embarcação?\nTenho interesse e gostaria de saber mais detalhes.\"");
+                const customMsg = encodeURIComponent("BarcoApp Conheça: https://sites.google.com/view/navegpurus/home\n\n\"Olá! Tudo bem? Tenho interesse em viajar nesse barco.\"");
                 
                 document.getElementById('btn-wa1').onclick = () => window.open(`https://wa.me/55${b.tel1.replace(/\D/g,'')}?text=${customMsg}`);
                 document.getElementById('btn-wa2').onclick = () => window.open(`https://wa.me/55${b.tel2.replace(/\D/g,'')}?text=${customMsg}`);
@@ -494,3 +494,4 @@
     </script>
 </body>
 </html>
+

@@ -71,12 +71,38 @@
         .day-tag-float { position: absolute; top: 8px; left: 8px; background: var(--accent-cyan); color: #000; font-size: 0.55rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; z-index: 10; }
         .input-premium { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass); background: #0c121e; color: white; outline: none; }
         .btn-close-modal { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; z-index: 10; cursor: pointer;}
+
+        /* ESTILO DO MODAL DE SAÍDA (APK) */
+        #exit-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .exit-card {
+            background: var(--card-dark); width: 85%; max-width: 320px; padding: 30px;
+            border-radius: 30px; text-align: center; border: 1px solid var(--glass);
+        }
+        .exit-btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-exit-yes { background: #ef4444; color: white; border: none; flex: 1; padding: 15px; border-radius: 15px; font-weight: 800; }
+        .btn-exit-no { background: var(--glass); color: white; border: none; flex: 1; padding: 15px; border-radius: 15px; font-weight: 800; }
     </style>
 </head>
 <body>
 
     <div id="global-alert" style="display:none; background: var(--accent-yellow); color: #000; padding: 14px; font-weight: 800; text-align: center; font-size: 0.75rem; position: sticky; top: 0; z-index: 1001;">
         <i class="fas fa-bullhorn"></i> <span id="alert-text"></span>
+    </div>
+
+    <div id="exit-modal">
+        <div class="exit-card">
+            <i class="fas fa-ship" style="font-size: 2.5rem; color: var(--accent-cyan); margin-bottom: 15px;"></i>
+            <h3 style="margin:0;">Fechar o App?</h3>
+            <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 10px;">Deseja realmente sair do BarcoApp?</p>
+            <div class="exit-btn-group">
+                <button class="btn-exit-yes" onclick="confirmExitApp()">SIM</button>
+                <button class="btn-exit-no" onclick="closeExitModal()">NÃO</button>
+            </div>
+        </div>
     </div>
 
     <section id="screen-welcome" style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px; text-align:center;">
@@ -222,8 +248,64 @@
         let currentUser = JSON.parse(localStorage.getItem('barco_user_data'));
         let currentImg = "";
         let currentDayPage = "";
-        let showcaseSwiperInstance = null; // Guardar instância para atualizar
+        let showcaseSwiperInstance = null;
         const diasSemana = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+
+        // --- LÓGICA DE PROTEÇÃO DE NAVEGAÇÃO (BOTÃO VOLTAR) ---
+        
+        function handleBackAction() {
+            const boatModal = document.getElementById('boat-modal');
+            const weekModal = document.getElementById('weekModal');
+            const registerScreen = document.getElementById('screen-register');
+            const detailScreen = document.getElementById('screen-day-detail');
+            const exitModal = document.getElementById('exit-modal');
+
+            // 1. Prioridade: Se o modal de saída estiver aberto, fecha ele
+            if (exitModal.style.display === 'flex') {
+                closeExitModal();
+            } 
+            // 2. Se o modal de detalhes do barco estiver aberto, fecha ele
+            else if (boatModal.style.display === 'flex') {
+                boatModal.style.display = 'none';
+            } 
+            // 3. Se o modal da agenda semanal estiver aberto, fecha ele
+            else if (weekModal.style.display === 'block') {
+                weekModal.style.display = 'none';
+            }
+            // 4. Se estiver em telas secundárias, volta para a principal
+            else if (registerScreen.style.display === 'block' || detailScreen.style.display === 'block') {
+                navigate('screen-main');
+            }
+            // 5. Se estiver na tela principal, pergunta se quer sair
+            else if (document.getElementById('screen-main').style.display === 'flex') {
+                showExitModal();
+            }
+        }
+
+        // Intercepta o botão voltar do Android
+        window.onpopstate = function() {
+            handleBackAction();
+            // Mantém o usuário "preso" no histórico para o próximo clique
+            history.pushState(null, null, window.location.pathname);
+        };
+
+        function showExitModal() {
+            document.getElementById('exit-modal').style.display = 'flex';
+        }
+
+        function closeExitModal() {
+            document.getElementById('exit-modal').style.display = 'none';
+        }
+
+        function confirmExitApp() {
+            // Em APKs, window.close costuma funcionar ou mata a WebView
+            window.close();
+            // Fallback para navegadores
+            alert("Use o botão Home do seu celular para minimizar.");
+            closeExitModal();
+        }
+
+        // --- FUNÇÕES EXISTENTES PRESERVADAS ---
 
         function formatDateBR(dateStr) {
             if(!dateStr) return "";
@@ -237,6 +319,8 @@
             if(id === 'screen-main') el.style.display = 'flex';
             else el.style.display = 'block';
             window.scrollTo(0,0);
+            // Sempre que navegar, garante um estado no histórico para o botão voltar funcionar
+            history.pushState(null, null, window.location.pathname);
         }
 
         function launchApp() {
@@ -295,13 +379,11 @@
             });
         }
 
-        // CORREÇÃO DO ERRO DE ARRASTO NA BUSCA
         function filterShowcase(query) {
             const term = query.toLowerCase();
             document.querySelectorAll('.boat-slide-item').forEach(s => {
                 s.style.display = s.getAttribute('data-search').includes(term) ? 'block' : 'none';
             });
-            // ESSENCIAL: Avisa o Swiper que os itens mudaram para ele recalcular o tamanho do arraste
             if(showcaseSwiperInstance) {
                 showcaseSwiperInstance.update();
                 showcaseSwiperInstance.slideTo(0);
@@ -309,7 +391,10 @@
         }
 
         function openDirectDetails(day, key) { currentDayPage = day; openDetails(key); }
-        function toggleWeek(show) { document.getElementById('weekModal').style.display = show ? 'block' : 'none'; }
+        function toggleWeek(show) { 
+            document.getElementById('weekModal').style.display = show ? 'block' : 'none'; 
+            if(show) history.pushState(null, null, window.location.pathname);
+        }
         function closeModal() { document.getElementById('boat-modal').style.display = 'none'; }
 
         function renderWeekList() {
@@ -378,6 +463,8 @@
                 document.getElementById('btn-wa1').onclick = () => window.open(`https://wa.me/55${b.tel1.replace(/\D/g,'')}?text=Vi seu barco no BarcoApp!`);
                 document.getElementById('btn-wa2').onclick = () => window.open(`https://wa.me/55${b.tel2.replace(/\D/g,'')}?text=Vi seu barco no BarcoApp!`);
                 document.getElementById('boat-modal').style.display = 'flex';
+                // Cria estado para o botão voltar fechar o modal
+                history.pushState(null, null, window.location.pathname);
             });
         }
 
@@ -468,7 +555,12 @@
         }
 
         function shareApp() { window.open("https://wa.me/?text=🚢 BarcoApp: " + window.location.href); }
-        window.onload = () => { if(currentUser) startApp(); };
+        
+        window.onload = () => { 
+            // Inicializa o histórico para o botão voltar não fechar o app de primeira
+            history.pushState(null, null, window.location.pathname);
+            if(currentUser) startApp(); 
+        };
     </script>
 </body>
 </html>

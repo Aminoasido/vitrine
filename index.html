@@ -70,8 +70,6 @@
         .modal-content { background: var(--card-dark); width: 100%; max-width: 450px; border-radius: 30px; overflow-y: auto; max-height: 90vh; border: 1px solid var(--glass); position: relative;}
         .day-tag-float { position: absolute; top: 8px; left: 8px; background: var(--accent-cyan); color: #000; font-size: 0.55rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; z-index: 10; }
         .input-premium { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass); background: #0c121e; color: white; outline: none; }
-        
-        /* Estilo do botão de fechar modal para não sumir */
         .btn-close-modal { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; z-index: 10; cursor: pointer;}
     </style>
 </head>
@@ -146,7 +144,8 @@
                     <button id="btn-share-post" style="background:var(--glass); border:none; color:var(--accent-cyan); width:40px; height:40px; border-radius:12px; cursor:pointer;"><i class="fas fa-share-alt"></i></button>
                 </div>
                 
-                <div id="modal-departure" style="color: var(--accent-yellow); font-size: 0.8rem; margin: 10px 0; font-weight: 700;"></div>
+                <div id="modal-departure-text" style="color: var(--accent-yellow); font-size: 0.8rem; margin: 10px 0; font-weight: 700;"></div>
+                
                 <div id="modal-route" style="font-weight:800; padding:15px; background: rgba(255,255,255,0.03); border-radius: 16px; text-align: center; border: 1px solid var(--glass); color: #fff;"></div>
                 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:15px; font-size: 0.85rem;">
@@ -197,7 +196,7 @@
             </div>
         </div>
         <input type="text" id="in-name" class="input-premium" placeholder="Nome da Embarcação" style="margin-bottom:10px;">
-        <input type="text" id="in-departure" class="input-premium" placeholder="Local de Saída" style="margin-bottom:10px;">
+        <input type="text" id="in-departure" class="input-premium" placeholder="Local de Saída (Porto)" style="margin-bottom:10px;">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <input type="text" id="in-origin" class="input-premium" placeholder="Origem">
             <input type="text" id="in-destiny" class="input-premium" placeholder="Destino">
@@ -230,6 +229,14 @@
         let currentImg = "";
         let currentDayPage = "";
         const diasSemana = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+
+        // FUNÇÃO PARA FORMATAR DATA BRASILEIRA (DD/MM/YYYY)
+        function formatDateBR(dateStr) {
+            if(!dateStr) return "";
+            const parts = dateStr.split('-');
+            if(parts.length !== 3) return dateStr;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
 
         function navigate(id) {
             document.querySelectorAll('section').forEach(s => s.style.display = 'none');
@@ -337,13 +344,13 @@
             });
         }
 
-        // FUNÇÃO DE COMPARTILHAR PUBLICAÇÃO ESPECÍFICA
         function shareBoat(boat) {
+            const dataBR = formatDateBR(boat.date); // DATA EM PT-BR
             const text = `🚢 *Escala de Embarcação no BarcoApp*\n\n` +
                          `🛳 *Barco:* ${boat.name}\n` +
-                         `📍 *Saída:* ${boat.departure || 'Porto'}\n` +
+                         `📍 *Saída:* ${boat.departure || 'Não informado'}\n` +
                          `🛣 *Rota:* ${boat.origin} x ${boat.destiny}\n` +
-                         `📅 *Data:* ${boat.date} às ${boat.time}\n` +
+                         `📅 *Data:* ${dataBR} às ${boat.time}\n` +
                          `💰 *Passagem:* R$ ${boat.price_p}\n` +
                          `🛌 *Camarote:* R$ ${boat.price_c}\n\n` +
                          `📲 Confira mais no BarcoApp: ${window.location.href}`;
@@ -358,19 +365,22 @@
         function openDetails(key) {
             rtdb.ref(`barcos/${currentDayPage}/${key}`).once('value', s => {
                 const b = s.val();
+                const dataBR = formatDateBR(b.date); // CORREÇÃO DATA
+
                 document.getElementById('modal-img').src = b.img || 'https://via.placeholder.com/400';
                 document.getElementById('modal-name').innerText = b.name;
-                document.getElementById('modal-departure').innerText = "📍 SAÍDA: " + (b.departure || "Não informado");
+                
+                // CORREÇÃO LOCAL DE SAÍDA NO MODAL
+                document.getElementById('modal-departure-text').innerHTML = `<i class="fas fa-anchor"></i> SAÍDA: ${b.departure || "Não informado"}`;
+                
                 document.getElementById('modal-route').innerHTML = `${b.origin} <i class="fas fa-arrow-right"></i> ${b.destiny}`;
-                document.getElementById('modal-date').innerText = "📅 Data: " + b.date;
+                document.getElementById('modal-date').innerText = "📅 Data: " + dataBR;
                 document.getElementById('modal-time').innerText = "⏰ Hora: " + b.time;
                 document.getElementById('modal-price-p').innerText = "🎟 Passagem: R$ " + b.price_p;
                 document.getElementById('modal-price-c').innerText = "🛌 Camarote: R$ " + b.price_c;
                 
                 document.getElementById('btn-like').onclick = () => registerVote(key, 'likes');
                 document.getElementById('btn-dislike').onclick = () => registerVote(key, 'dislikes');
-                
-                // Configura o botão de compartilhar desta publicação
                 document.getElementById('btn-share-post').onclick = () => shareBoat(b);
 
                 document.getElementById('btn-wa1').onclick = () => window.open(`https://wa.me/55${b.tel1.replace(/\D/g,'')}?text=Vi seu barco no BarcoApp!`);
@@ -415,10 +425,13 @@
         function publish() {
             const name = document.getElementById('in-name').value;
             const dateVal = document.getElementById('in-date').value;
+            const departure = document.getElementById('in-departure').value; // PEGA O PORTO
             if(!name || !dateVal) return alert("Preencha Nome e Data!");
             const boat = {
-                name, departure: document.getElementById('in-departure').value,
-                origin: document.getElementById('in-origin').value, destiny: document.getElementById('in-destiny').value,
+                name, 
+                departure: departure, // SALVA O PORTO
+                origin: document.getElementById('in-origin').value, 
+                destiny: document.getElementById('in-destiny').value,
                 date: dateVal, time: document.getElementById('in-time').value,
                 price_p: document.getElementById('in-price-p').value, price_c: document.getElementById('in-price-c').value,
                 tel1: document.getElementById('in-tel-1').value, tel2: document.getElementById('in-tel-2').value,

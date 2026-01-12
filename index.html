@@ -29,7 +29,6 @@
         
         .main-container { display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 100px; }
         
-        /* Estilo do botão de abrir semana */
         .btn-open-week {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
             margin: 10px 20px; padding: 18px; border-radius: 20px;
@@ -48,10 +47,7 @@
             display: flex; justify-content: space-between; align-items: center; font-weight: 700;
         }
 
-        /* Estilo Carrossel de Barcos */
-        .boat-slide {
-            position: relative; border-radius: 15px; overflow: hidden; height: 180px;
-        }
+        .boat-slide { position: relative; border-radius: 15px; overflow: hidden; height: 180px; }
         .boat-slide img { width: 100%; height: 100%; object-fit: cover; }
         .boat-slide-info {
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -63,11 +59,7 @@
         .form-label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 5px; text-transform: uppercase; margin-top: 15px;}
         
         .feed { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; }
-        .boat-card { 
-            background: var(--card-dark); border-radius: 24px; overflow: hidden; 
-            border: 1px solid rgba(255,255,255,0.08); position: relative; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
+        .boat-card { background: var(--card-dark); border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); position: relative; }
         .boat-img-container { position: relative; width: 100%; height: 120px; }
         .boat-img { width: 100%; height: 100%; object-fit: cover; }
         
@@ -124,13 +116,11 @@
         <div style="padding: 20px;">
             <h4 style="margin: 0 0 15px 0; font-size: 0.8rem; letter-spacing: 1px; color: var(--accent-cyan); text-transform: uppercase;">Embarcações Ativas</h4>
             <div class="swiper-container swiper-barcos" style="border-radius: 15px;">
-                <div class="swiper-wrapper" id="carousel-barcos-ativos">
-                    </div>
+                <div class="swiper-wrapper" id="carousel-barcos-ativos"></div>
             </div>
         </div>
 
         <div class="fab-container">
-            <button class="fab" style="background:#fff; color:#000" onclick="openToday()"><i class="fas fa-anchor"></i></button>
             <button class="fab" style="background:#25d366" onclick="shareApp()"><i class="fab fa-whatsapp"></i></button>
             <button class="fab" style="background:var(--gradient)" onclick="navigate('screen-register')"><i class="fas fa-plus"></i></button>
         </div>
@@ -163,7 +153,6 @@
             <i class="fas fa-camera" id="camera-icon" style="font-size:1.5rem; color:var(--accent-cyan);"></i>
         </div>
         <label class="form-label">Nome do Barco</label><input type="text" id="in-name" class="input-premium">
-        <label class="form-label">Local de Saída</label><input type="text" id="in-departure" class="input-premium">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <div><label class="form-label">Origem</label><input type="text" id="in-origin" class="input-premium"></div>
             <div><label class="form-label">Destino</label><input type="text" id="in-destiny" class="input-premium"></div>
@@ -172,15 +161,7 @@
             <div><label class="form-label">Data</label><input type="date" id="in-date" class="input-premium"></div>
             <div><label class="form-label">Horário</label><input type="time" id="in-time" class="input-premium"></div>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <div><label class="form-label">Passagem</label><input type="number" id="in-price-p" class="input-premium"></div>
-            <div><label class="form-label">Camarote</label><input type="number" id="in-price-c" class="input-premium"></div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <div><label class="form-label">WhatsApp 1</label><input type="tel" id="in-tel-1" class="input-premium"></div>
-            <div><label class="form-label">WhatsApp 2</label><input type="tel" id="in-tel-2" class="input-premium"></div>
-        </div>
-        <button class="btn-main" onclick="publish()" style="margin-top:25px;">PUBLICA AGORA</button>
+        <button class="btn-main" onclick="publish()" style="margin-top:25px;">PUBLICAR AGORA</button>
     </section>
 
     <div id="boat-modal" class="modal" onclick="closeModal()">
@@ -193,10 +174,7 @@
                     <div><i class="far fa-calendar"></i> <span id="modal-date"></span></div>
                     <div><i class="far fa-clock"></i> <span id="modal-time"></span></div>
                 </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-                    <button id="btn-wa1" class="btn-main" style="background:#25d366; padding:12px; font-size:0.7rem;">ZAP 1</button>
-                    <button id="btn-wa2" class="btn-main" style="background:#128c7e; padding:12px; font-size:0.7rem;">ZAP 2</button>
-                </div>
+                <button id="btn-wa-direct" class="btn-main" style="background:#25d366; margin-top:20px;">FALAR NO WHATSAPP</button>
             </div>
         </div>
     </div>
@@ -244,11 +222,10 @@
             renderWeekList();
             listenAlerts();
             listenCarousel();
-            listenBoatCarousel(); // Inicia o carrossel de barcos
+            listenBoatCarousel();
             updateStats();
         }
 
-        // NOVO: Monitora todos os barcos para o carrossel da Home
         function listenBoatCarousel() {
             rtdb.ref('barcos').on('value', s => {
                 const wrapper = document.getElementById('carousel-barcos-ativos');
@@ -256,36 +233,25 @@
                 const allDays = s.val();
                 if(!allDays) return;
 
-                let count = 0;
                 Object.keys(allDays).forEach(dia => {
                     Object.keys(allDays[dia]).forEach(id => {
                         const b = allDays[dia][id];
-                        if(count < 10) { // Limite de 10 barcos no carrossel
-                            wrapper.innerHTML += `
-                                <div class="swiper-slide boat-slide" onclick="openDetailsDirect('${dia}', '${id}')">
-                                    <img src="${b.img || 'https://via.placeholder.com/400'}">
-                                    <div class="boat-slide-info">
-                                        <div style="color:var(--accent-cyan)">${b.name}</div>
-                                        <div style="font-size:0.6rem; opacity:0.8">${b.origin} > ${b.destiny}</div>
-                                    </div>
-                                </div>`;
-                            count++;
-                        }
+                        wrapper.innerHTML += `
+                            <div class="swiper-slide boat-slide" onclick="openDetailsDirect('${dia}', '${id}')">
+                                <img src="${b.img || 'https://via.placeholder.com/400'}">
+                                <div class="boat-slide-info">
+                                    <div style="color:var(--accent-cyan)">${b.name}</div>
+                                    <div style="font-size:0.65rem; opacity:0.8">${b.origin} > ${b.destiny}</div>
+                                </div>
+                            </div>`;
                     });
                 });
 
-                new Swiper(".swiper-barcos", {
-                    slidesPerView: 1.2,
-                    spaceBetween: 15,
-                    freeMode: true
-                });
+                new Swiper(".swiper-barcos", { slidesPerView: 1.3, spaceBetween: 15, freeMode: true });
             });
         }
 
-        function openDetailsDirect(dia, id) {
-            currentDayPage = dia;
-            openDetails(id);
-        }
+        function openDetailsDirect(dia, id) { currentDayPage = dia; openDetails(id); }
 
         function renderWeekList() {
             const container = document.getElementById('week-list-container');
@@ -296,7 +262,6 @@
         }
 
         function toggleWeek(show) { document.getElementById('weekModal').style.display = show ? 'block' : 'none'; }
-        function openToday() { changePage(diasSemana[new Date().getDay()]); }
         function changePage(day) { currentDayPage = day; document.getElementById('day-title').innerText = day; navigate('screen-day-detail'); loadFeed(); }
 
         function loadFeed() {
@@ -304,13 +269,13 @@
             rtdb.ref('barcos/' + currentDayPage).on('value', s => {
                 feed.innerHTML = "";
                 const data = s.val();
-                if(!data) return feed.innerHTML = "<p>Sem barcos.</p>";
+                if(!data) return feed.innerHTML = "<p style='grid-column:1/-1;text-align:center;padding:40px;opacity:0.5'>Sem barcos.</p>";
                 Object.keys(data).forEach(key => {
                     const b = data[key];
                     feed.innerHTML += `
                         <div class="boat-card" onclick="openDetails('${key}')">
                             <div class="boat-img-container"><img src="${b.img}" class="boat-img"></div>
-                            <div style="padding:10px; font-size:0.7rem; font-weight:800;">${b.name}</div>
+                            <div style="padding:12px; font-size:0.75rem; font-weight:800; text-align:center;">${b.name}</div>
                         </div>`;
                 });
             });
@@ -324,6 +289,7 @@
                 document.getElementById('modal-route').innerText = `${b.origin} para ${b.destiny}`;
                 document.getElementById('modal-date').innerText = b.date;
                 document.getElementById('modal-time').innerText = b.time;
+                document.getElementById('btn-wa-direct').onclick = () => window.open('https://wa.me/55'+b.tel1.replace(/\D/g,''));
                 document.getElementById('boat-modal').style.display = 'flex';
             });
         }
@@ -349,16 +315,13 @@
                 destiny: document.getElementById('in-destiny').value,
                 date: dateVal,
                 time: document.getElementById('in-time').value,
-                price_p: document.getElementById('in-price-p').value,
-                price_c: document.getElementById('in-price-c').value,
-                tel1: document.getElementById('in-tel-1').value,
-                tel2: document.getElementById('in-tel-2').value,
+                tel1: currentUser.phone,
                 img: currentImg,
                 registeredBy: currentUser.phone
             };
             const dName = diasSemana[new Date(dateVal.replace(/-/g, '\/')).getDay()];
             rtdb.ref('barcos/' + dName).push(boat).then(() => {
-                alert("Publicado!");
+                alert("Publicado com sucesso!");
                 navigate('screen-main');
             });
         }

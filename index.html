@@ -7,8 +7,10 @@
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="logo.png">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -27,13 +29,18 @@
         * { transition: all 0.2s ease; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: var(--text-white); overflow-x: hidden; height: 100%; }
         
-        .main-container { display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 100px; }
+        .main-container { display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 30px; }
+        
+        /* Novo estilo da vitrine com efeito de corte */
+        .showcase-container { margin: 20px 0; padding-left: 20px; }
+        .showcase-swiper { overflow: visible !important; } /* Permite ver o próximo item cortado */
         
         .btn-open-week {
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            background: var(--gradient); border: none;
             margin: 10px 20px; padding: 18px; border-radius: 20px;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            font-weight: 700; color: var(--text-white); cursor: pointer;
+            font-weight: 800; color: #000; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(34, 211, 238, 0.2);
         }
 
         .week-modal {
@@ -47,27 +54,42 @@
             display: flex; justify-content: space-between; align-items: center; font-weight: 700;
         }
 
-        .boat-slide { position: relative; border-radius: 15px; overflow: hidden; height: 180px; }
-        .boat-slide img { width: 100%; height: 100%; object-fit: cover; }
-        .boat-slide-info {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            padding: 15px; font-size: 0.8rem; font-weight: 700;
-        }
-
         .input-premium { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass); background: #070b14; color: white; outline: none; }
         .form-label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 5px; text-transform: uppercase; margin-top: 15px;}
         
         .feed { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; }
-        .boat-card { background: var(--card-dark); border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); position: relative; }
+        .boat-card { 
+            background: var(--card-dark); border-radius: 24px; overflow: hidden; 
+            border: 1px solid rgba(255,255,255,0.08); position: relative; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            height: 100%;
+        }
         .boat-img-container { position: relative; width: 100%; height: 120px; }
         .boat-img { width: 100%; height: 100%; object-fit: cover; }
-        
+        .boat-overlay-name {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            padding: 20px 10px 5px 10px;
+            font-weight: 800; font-size: 0.85rem; color: #fff;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .route-box {
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px; font-size: 0.65rem; font-weight: 700; color: var(--text-dim);
+            padding: 12px 5px; background: rgba(0,0,0,0.2);
+        }
+
         .btn-main { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--gradient); color: white; font-weight: 800; cursor: pointer; }
         .fab-container { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 999; }
-        .fab { width: 56px; height: 56px; border-radius: 50%; border: none; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .fab { width: 56px; height: 56px; border-radius: 50%; border: none; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: var(--card-dark); width: 100%; max-width: 450px; border-radius: 30px; overflow-y: auto; max-height: 90vh; }
+        
+        /* Tag de Dia na Vitrine */
+        .day-tag-float {
+            position: absolute; top: 8px; left: 8px; background: var(--accent-cyan);
+            color: #000; font-size: 0.55rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -93,7 +115,7 @@
         </div>
 
         <div style="padding: 0 20px;">
-            <div class="swiper-container swiper-campanhas" style="border-radius: 20px; overflow: hidden;">
+            <div class="swiper-container mySwiper" style="border-radius: 20px; overflow: hidden;">
                 <div class="swiper-wrapper" id="carousel-campaigns"></div>
                 <div class="swiper-pagination"></div>
             </div>
@@ -110,13 +132,14 @@
         </div>
 
         <div class="btn-open-week" onclick="toggleWeek(true)">
-            <i class="far fa-calendar-alt"></i> Ver escala completa
+            <i class="far fa-calendar-alt"></i> VER AGENDA SEMANAL
         </div>
 
-        <div style="padding: 20px;">
-            <h4 style="margin: 0 0 15px 0; font-size: 0.8rem; letter-spacing: 1px; color: var(--accent-cyan); text-transform: uppercase;">Embarcações Ativas</h4>
-            <div class="swiper-container swiper-barcos" style="border-radius: 15px;">
-                <div class="swiper-wrapper" id="carousel-barcos-ativos"></div>
+        <div class="showcase-container">
+            <h3 style="margin: 0 0 15px 0; font-size: 0.9rem; letter-spacing: 1px; color: var(--text-dim);">EM DESTAQUE</h3>
+            <div class="swiper-container showcaseSwiper">
+                <div class="swiper-wrapper" id="dynamic-showcase-wrapper">
+                    </div>
             </div>
         </div>
 
@@ -153,6 +176,7 @@
             <i class="fas fa-camera" id="camera-icon" style="font-size:1.5rem; color:var(--accent-cyan);"></i>
         </div>
         <label class="form-label">Nome do Barco</label><input type="text" id="in-name" class="input-premium">
+        <label class="form-label">Local de Saída (Porto/Cais)</label><input type="text" id="in-departure" class="input-premium">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <div><label class="form-label">Origem</label><input type="text" id="in-origin" class="input-premium"></div>
             <div><label class="form-label">Destino</label><input type="text" id="in-destiny" class="input-premium"></div>
@@ -160,6 +184,14 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <div><label class="form-label">Data</label><input type="date" id="in-date" class="input-premium"></div>
             <div><label class="form-label">Horário</label><input type="time" id="in-time" class="input-premium"></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div><label class="form-label">Passagem</label><input type="number" id="in-price-p" class="input-premium"></div>
+            <div><label class="form-label">Camarote</label><input type="number" id="in-price-c" class="input-premium"></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div><label class="form-label">WhatsApp 1</label><input type="tel" id="in-tel-1" class="input-premium"></div>
+            <div><label class="form-label">WhatsApp 2</label><input type="tel" id="in-tel-2" class="input-premium"></div>
         </div>
         <button class="btn-main" onclick="publish()" style="margin-top:25px;">PUBLICAR AGORA</button>
     </section>
@@ -169,18 +201,31 @@
             <img id="modal-img" style="width:100%; height:200px; object-fit:cover; border-radius:30px 30px 0 0;">
             <div style="padding:25px;">
                 <h2 id="modal-name" style="margin:0; color:var(--accent-cyan); font-size:1.6rem; font-weight: 800;"></h2>
-                <div id="modal-route" style="font-weight:800; font-size:1rem; margin:15px 0;"></div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:0.75rem;">
+                <div id="modal-departure-box" style="margin-top: 5px; color: var(--accent-yellow); font-size: 0.75rem; font-weight: 700;">
+                    <i class="fas fa-anchor"></i> SAÍDA: <span id="modal-departure"></span>
+                </div>
+                <div id="modal-route" style="font-weight:800; font-size:1rem; margin:15px 0; padding:10px; background: rgba(255,255,255,0.05); border-radius: 10px; text-align: center;"></div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:0.75rem; background: rgba(0,0,0,0.3); padding:15px; border-radius:15px;">
                     <div><i class="far fa-calendar"></i> <span id="modal-date"></span></div>
                     <div><i class="far fa-clock"></i> <span id="modal-time"></span></div>
+                    <div style="color:var(--accent-green); font-weight: 800;">Passagem: <span id="modal-price-p"></span></div>
+                    <div style="color:var(--accent-yellow); font-weight: 800;">Camarote: <span id="modal-price-c"></span></div>
                 </div>
-                <button id="btn-wa-direct" class="btn-main" style="background:#25d366; margin-top:20px;">FALAR NO WHATSAPP</button>
+                <div id="vote-section" style="display:flex; gap:10px; margin-top:20px; border-top:1px solid var(--glass); padding-top:15px;">
+                    <button id="btn-like" class="btn-main" style="background:var(--accent-green); flex:1; padding:12px; font-size:0.7rem;"><i class="fas fa-thumbs-up"></i> GOSTEI</button>
+                    <button id="btn-dislike" class="btn-main" style="background:#ef4444; flex:1; padding:12px; font-size:0.7rem;"><i class="fas fa-thumbs-down"></i> NÃO GOSTEI</button>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+                    <button id="btn-wa1" class="btn-main" style="background:#25d366; padding:12px; font-size:0.7rem;"><i class="fab fa-whatsapp"></i> ZAP 1</button>
+                    <button id="btn-wa2" class="btn-main" style="background:#128c7e; padding:12px; font-size:0.7rem;"><i class="fab fa-whatsapp"></i> ZAP 2</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script>
+        // CONFIGURAÇÕES FIREBASE (MANTIDAS)
         const firebaseConfig = {
             apiKey: "AIzaSyDe8vErlAxcDpYqZygWcZAaWT1vGX1P_BM",
             authDomain: "barcoapp-c0f00.firebaseapp.com",
@@ -212,6 +257,7 @@
             if(n.length < 3 || p.length < 8) return alert("Preencha corretamente!");
             currentUser = { name: n, phone: p };
             localStorage.setItem('barco_user_data', JSON.stringify(currentUser));
+            rtdb.ref('usuarios_cadastrados/' + p).update({ nome: n, whatsapp: p });
             startApp();
         }
 
@@ -222,60 +268,88 @@
             renderWeekList();
             listenAlerts();
             listenCarousel();
-            listenBoatCarousel();
+            listenDynamicShowcase(); // Nova função
             updateStats();
         }
 
-        function listenBoatCarousel() {
-            rtdb.ref('barcos').on('value', s => {
-                const wrapper = document.getElementById('carousel-barcos-ativos');
+        // --- NOVA FUNÇÃO: VITRINE DINÂMICA ---
+        function listenDynamicShowcase() {
+            rtdb.ref('barcos').on('value', snapshot => {
+                const wrapper = document.getElementById('dynamic-showcase-wrapper');
                 wrapper.innerHTML = "";
-                const allDays = s.val();
+                const allDays = snapshot.val();
                 if(!allDays) return;
 
-                Object.keys(allDays).forEach(dia => {
-                    Object.keys(allDays[dia]).forEach(id => {
-                        const b = allDays[dia][id];
-                        wrapper.innerHTML += `
-                            <div class="swiper-slide boat-slide" onclick="openDetailsDirect('${dia}', '${id}')">
-                                <img src="${b.img || 'https://via.placeholder.com/400'}">
-                                <div class="boat-slide-info">
-                                    <div style="color:var(--accent-cyan)">${b.name}</div>
-                                    <div style="font-size:0.65rem; opacity:0.8">${b.origin} > ${b.destiny}</div>
+                Object.keys(allDays).forEach(dayName => {
+                    const boats = allDays[dayName];
+                    Object.keys(boats).forEach(boatId => {
+                        const b = boats[boatId];
+                        const slide = document.createElement('div');
+                        slide.className = 'swiper-slide';
+                        slide.style.width = '160px'; // Tamanho fixo para o efeito de corte
+                        slide.innerHTML = `
+                            <div class="boat-card" onclick="openDirectDetails('${dayName}', '${boatId}')">
+                                <div class="day-tag-float">${dayName}</div>
+                                <div class="boat-img-container" style="height: 100px;">
+                                    <img src="${b.img || 'https://via.placeholder.com/150'}" class="boat-img">
+                                    <div class="boat-overlay-name" style="font-size:0.6rem; padding: 10px 5px;">${b.name}</div>
                                 </div>
-                            </div>`;
+                                <div class="route-box" style="font-size: 0.5rem; padding: 8px 2px;">
+                                    ${b.origin} <i class="fas fa-arrow-right"></i> ${b.destiny}
+                                </div>
+                            </div>
+                        `;
+                        wrapper.appendChild(slide);
                     });
                 });
 
-                new Swiper(".swiper-barcos", { slidesPerView: 1.3, spaceBetween: 15, freeMode: true });
+                new Swiper(".showcaseSwiper", {
+                    slidesPerView: "auto",
+                    spaceBetween: 15,
+                    freeMode: true
+                });
             });
         }
 
-        function openDetailsDirect(dia, id) { currentDayPage = dia; openDetails(id); }
+        // --- NOVA FUNÇÃO: ACESSO DIRETO ---
+        function openDirectDetails(day, key) {
+            currentDayPage = day; // Seta o dia para a função original de voto funcionar
+            openDetails(key);
+        }
 
+        // --- FUNÇÕES ORIGINAIS PRESERVADAS ---
         function renderWeekList() {
             const container = document.getElementById('week-list-container');
             container.innerHTML = "";
             diasSemana.forEach(d => {
-                container.innerHTML += `<div class="day-row" onclick="changePage('${d}'); toggleWeek(false)"><span>${d}</span><i class="fas fa-chevron-right"></i></div>`;
+                container.innerHTML += `<div class="day-row" onclick="changePage('${d}'); toggleWeek(false)"><span>${d}</span><i class="fas fa-chevron-right" style="color:var(--accent-cyan)"></i></div>`;
             });
         }
 
         function toggleWeek(show) { document.getElementById('weekModal').style.display = show ? 'block' : 'none'; }
-        function changePage(day) { currentDayPage = day; document.getElementById('day-title').innerText = day; navigate('screen-day-detail'); loadFeed(); }
+        
+        function changePage(day) {
+            currentDayPage = day;
+            document.getElementById('day-title').innerText = day;
+            navigate('screen-day-detail');
+            loadFeed();
+        }
 
         function loadFeed() {
             const feed = document.getElementById('boat-feed');
             rtdb.ref('barcos/' + currentDayPage).on('value', s => {
                 feed.innerHTML = "";
                 const data = s.val();
-                if(!data) return feed.innerHTML = "<p style='grid-column:1/-1;text-align:center;padding:40px;opacity:0.5'>Sem barcos.</p>";
+                if(!data) { feed.innerHTML = "<p style='grid-column:span 2; text-align:center; padding:50px; opacity:0.5;'>Nenhum barco.</p>"; return; }
                 Object.keys(data).forEach(key => {
                     const b = data[key];
+                    const saldo = (b.likes || 0) - (b.dislikes || 0);
                     feed.innerHTML += `
                         <div class="boat-card" onclick="openDetails('${key}')">
-                            <div class="boat-img-container"><img src="${b.img}" class="boat-img"></div>
-                            <div style="padding:12px; font-size:0.75rem; font-weight:800; text-align:center;">${b.name}</div>
+                            <div style="position:absolute; top:8px; left:8px; background:var(--accent-green); color:#000; font-size:0.6rem; padding:3px 8px; border-radius:8px; font-weight:800; z-index:10;">R$ ${b.price_p}</div>
+                            <div style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.6); color:#fff; font-size:0.6rem; padding:3px 8px; border-radius:8px; font-weight:800; z-index:10;"><i class="fas fa-heart"></i> ${saldo}</div>
+                            <div class="boat-img-container"><img src="${b.img || 'https://via.placeholder.com/150'}" class="boat-img"><div class="boat-overlay-name">${b.name}</div></div>
+                            <div class="route-box"><span>${b.origin}</span><i class="fas fa-arrow-right" style="color:var(--accent-cyan); font-size:0.5rem"></i><span>${b.destiny}</span></div>
                         </div>`;
                 });
             });
@@ -284,69 +358,114 @@
         function openDetails(key) {
             rtdb.ref(`barcos/${currentDayPage}/${key}`).once('value', s => {
                 const b = s.val();
-                document.getElementById('modal-img').src = b.img;
+                if(!b) return;
+                document.getElementById('modal-img').src = b.img || 'https://via.placeholder.com/400';
                 document.getElementById('modal-name').innerText = b.name;
-                document.getElementById('modal-route').innerText = `${b.origin} para ${b.destiny}`;
+                document.getElementById('modal-departure').innerText = b.departure || "Não informado";
+                document.getElementById('modal-route').innerHTML = `${b.origin} <i class="fas fa-arrow-right" style="color:var(--accent-cyan); font-size:0.8rem; margin:0 10px;"></i> ${b.destiny}`;
                 document.getElementById('modal-date').innerText = b.date;
                 document.getElementById('modal-time').innerText = b.time;
-                document.getElementById('btn-wa-direct').onclick = () => window.open('https://wa.me/55'+b.tel1.replace(/\D/g,''));
+                document.getElementById('modal-price-p').innerText = 'R$ ' + b.price_p;
+                document.getElementById('modal-price-c').innerText = 'R$ ' + b.price_c;
+                document.getElementById('btn-like').onclick = () => registerVote(key, 'likes');
+                document.getElementById('btn-dislike').onclick = () => registerVote(key, 'dislikes');
+                document.getElementById('btn-wa1').onclick = () => window.open('https://wa.me/55'+b.tel1.replace(/\D/g,''));
+                document.getElementById('btn-wa2').onclick = () => window.open('https://wa.me/55'+b.tel2.replace(/\D/g,''));
                 document.getElementById('boat-modal').style.display = 'flex';
+            });
+        }
+
+        function registerVote(boatKey, type) {
+            if (!currentUser || !currentUser.phone) return alert("Erro!");
+            const userPhone = currentUser.phone;
+            const voteLockRef = rtdb.ref(`votos_registrados/${boatKey}/${userPhone}`);
+            voteLockRef.once('value', snapshot => {
+                if (snapshot.exists()) { alert("Já votou!"); } 
+                else {
+                    voteLockRef.set({ voto: type, timestamp: Date.now() }).then(() => {
+                        rtdb.ref(`barcos/${currentDayPage}/${boatKey}/${type}`).transaction(v => (v || 0) + 1);
+                        alert("Voto registrado!");
+                        closeModal();
+                    });
+                }
             });
         }
 
         function closeModal() { document.getElementById('boat-modal').style.display = 'none'; }
 
         function processImage(input) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                currentImg = e.target.result;
-                document.getElementById('preview-img').src = currentImg;
-                document.getElementById('preview-img').style.display = 'block';
-                document.getElementById('camera-icon').style.display = 'none';
-            };
-            reader.readAsDataURL(input.files[0]);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height, max = 600;
+                        if (w > h) { if (w > max) { h *= max / w; w = max; } }
+                        else { if (h > max) { w *= max / h; h = max; } }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        currentImg = canvas.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('preview-img').src = currentImg;
+                        document.getElementById('preview-img').style.display = 'block';
+                        document.getElementById('camera-icon').style.display = 'none';
+                    };
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         function publish() {
+            const name = document.getElementById('in-name').value;
             const dateVal = document.getElementById('in-date').value;
+            if(!name || !dateVal) return alert("Preencha Nome e Data!");
             const boat = {
-                name: document.getElementById('in-name').value,
+                name: name,
+                departure: document.getElementById('in-departure').value,
                 origin: document.getElementById('in-origin').value,
                 destiny: document.getElementById('in-destiny').value,
                 date: dateVal,
                 time: document.getElementById('in-time').value,
-                tel1: currentUser.phone,
+                price_p: document.getElementById('in-price-p').value,
+                price_c: document.getElementById('in-price-c').value,
+                tel1: document.getElementById('in-tel-1').value,
+                tel2: document.getElementById('in-tel-2').value,
                 img: currentImg,
-                registeredBy: currentUser.phone
+                likes: 0, dislikes: 0, registeredBy: currentUser.phone
             };
-            const dName = diasSemana[new Date(dateVal.replace(/-/g, '\/')).getDay()];
+            const dp = dateVal.split('-');
+            const dName = diasSemana[new Date(dp[0], dp[1]-1, dp[2]).getDay()];
             rtdb.ref('barcos/' + dName).push(boat).then(() => {
-                alert("Publicado com sucesso!");
+                alert("Publicado!");
                 navigate('screen-main');
+                currentImg = "";
             });
         }
 
         function listenCarousel() {
             rtdb.ref('config/carrossel').on('value', s => {
                 const wrapper = document.getElementById('carousel-campaigns');
+                if(!wrapper) return;
                 wrapper.innerHTML = "";
                 const data = s.val();
                 if(data) {
                     Object.values(data).forEach(slide => {
-                        wrapper.innerHTML += `<div class="swiper-slide"><img src="${slide.img}" style="width:100%; height:160px; object-fit:cover;"></div>`;
+                        wrapper.innerHTML += `<div class="swiper-slide"><img src="${slide.img}" onclick="window.open('${slide.link}', '_blank')" style="width:100%; height:160px; object-fit:cover;"></div>`;
                     });
-                    new Swiper(".swiper-campanhas", { loop: true, autoplay: true, pagination: { el: ".swiper-pagination" } });
+                    new Swiper(".mySwiper", { loop: true, autoplay: { delay: 3000 }, pagination: { el: ".swiper-pagination" } });
                 }
             });
         }
 
         function listenAlerts() {
             rtdb.ref('config/alerta').on('value', s => {
+                const div = document.getElementById('global-alert');
                 const data = s.val();
                 if(data && data.active) {
-                    document.getElementById('global-alert').style.display = 'block';
+                    div.style.display = 'block';
                     document.getElementById('alert-text').innerText = data.text;
-                }
+                } else { div.style.display = 'none'; }
             });
         }
 
@@ -356,16 +475,21 @@
                 if(d) {
                     Object.values(d).forEach(dia => {
                         Object.values(dia).forEach(b => {
-                            if(b.registeredBy === currentUser.phone) l += (b.likes || 0);
+                            if(b.registeredBy === currentUser.phone) { l += ((b.likes || 0) - (b.dislikes || 0)); }
                         });
                     });
                 }
+                const p = Math.min((l/1000)*100, 100);
                 document.getElementById('total-likes-count').innerText = l;
-                document.getElementById('thermometer-bar').style.width = Math.min(l, 100) + '%';
+                document.getElementById('thermometer-bar').style.width = p+'%';
+                document.getElementById('percent-label').innerText = Math.floor(p) + '%';
             });
         }
 
-        function shareApp() { window.open("https://wa.me/?text=Confira o BarcoApp!"); }
+        function shareApp() {
+            const url = window.location.href;
+            window.open("https://wa.me/?text=Confira a escala de barcos no BarcoApp: " + url);
+        }
 
         window.onload = () => { if(currentUser) startApp(); };
     </script>
